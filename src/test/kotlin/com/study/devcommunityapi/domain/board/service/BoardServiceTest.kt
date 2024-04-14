@@ -1,17 +1,15 @@
 package com.study.devcommunityapi.domain.board.service
 
+//import org.junit.jupiter.api.Assertions
+
 import com.study.devcommunityapi.domain.board.dto.BoardRequestDto
 import com.study.devcommunityapi.domain.board.dto.BoardResponseDto
 import jakarta.transaction.Transactional
-//import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-
-import org.assertj.core.api.Assertions
 
 @SpringBootTest
 class BoardServiceTest @Autowired constructor(
@@ -63,19 +61,14 @@ class BoardServiceTest @Autowired constructor(
         val boardDto = BoardRequestDto(null, "board_test", true)
         val createdBoard = boardService.createBoard(boardDto)
 
-        val updatedBoard = boardService.updateBoard(BoardResponseDto(createdBoard!!.id, "board_update_test", false))
+        val updatedBoard = boardService.updateBoard(
+            createdBoard!!.id,
+            BoardResponseDto(createdBoard.id, "board_update_test", false)
+        )
 
         Assertions.assertThat(updatedBoard!!.name).isEqualTo("board_update_test")
         Assertions.assertThat(updatedBoard.usingStatus).isEqualTo(false)
 
     }
 
-    @Test
-    @Transactional
-    @DisplayName("보드 삭제")
-    fun deleteBoard() {
-
-
-
-    }
 }

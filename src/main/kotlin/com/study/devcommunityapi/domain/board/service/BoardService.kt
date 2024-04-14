@@ -26,8 +26,8 @@ class BoardService(
         return boardRepository.findAll().stream().map { it.toResponseDto() }.toList()
     }
 
-    fun updateBoard(boardResponseDto: BoardResponseDto) : BoardResponseDto? {
-        val foundBoard = boardRepository.findByIdOrNull(boardResponseDto.id)
+    fun updateBoard(id: Long, boardResponseDto: BoardResponseDto) : BoardResponseDto? {
+        val foundBoard = boardRepository.findByIdOrNull(id)
 
         if (foundBoard != null) {
             foundBoard.name = boardResponseDto.name
