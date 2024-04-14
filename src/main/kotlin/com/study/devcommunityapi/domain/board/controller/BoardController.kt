@@ -31,8 +31,8 @@ class BoardController(
     }
 
     @PutMapping("/{id}")
-    fun updateBoard(@PathVariable id: Long, @RequestBody boardResponseDto: BoardResponseDto): BaseResponseDto<BoardResponseDto> {
-        val updatedBoard = boardService.updateBoard(id, boardResponseDto)
+    fun updateBoard(@PathVariable id: Long, @RequestBody boardRequestDto: BoardRequestDto): BaseResponseDto<BoardResponseDto> {
+        val updatedBoard = boardService.updateBoard(id, boardRequestDto)
         return BaseResponseDto(data = updatedBoard)
     }
 

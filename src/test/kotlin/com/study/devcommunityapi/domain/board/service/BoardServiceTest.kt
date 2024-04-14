@@ -63,7 +63,7 @@ class BoardServiceTest @Autowired constructor(
 
         val updatedBoard = boardService.updateBoard(
             createdBoard!!.id,
-            BoardResponseDto(createdBoard.id, "board_update_test", false)
+            BoardRequestDto(createdBoard.id, "board_update_test", false)
         )
 
         Assertions.assertThat(updatedBoard!!.name).isEqualTo("board_update_test")
@@ -71,4 +71,12 @@ class BoardServiceTest @Autowired constructor(
 
     }
 
+    @Test
+    @Transactional
+    @DisplayName("보드 삭제")
+    fun deleteBoard() {
+
+
+
+    }
 }

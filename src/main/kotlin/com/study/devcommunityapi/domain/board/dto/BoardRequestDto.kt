@@ -18,10 +18,10 @@ data class BoardRequestDto(
 
 ) {
 
-    private val name: String
+    val name: String
         get() = _name!!
 
-    private val usingStatus: Boolean
+    val usingStatus: Boolean
         get() = _usingStatus!!
 
     fun toEntity(): Board = Board(id, name, usingStatus)

@@ -26,12 +26,12 @@ class BoardService(
         return boardRepository.findAll().stream().map { it.toResponseDto() }.toList()
     }
 
-    fun updateBoard(id: Long, boardResponseDto: BoardResponseDto) : BoardResponseDto? {
+    fun updateBoard(id: Long, boardRequestDto: BoardRequestDto) : BoardResponseDto? {
         val foundBoard = boardRepository.findByIdOrNull(id)
 
         if (foundBoard != null) {
-            foundBoard.name = boardResponseDto.name
-            foundBoard.usingStatus = boardResponseDto.usingStatus
+            foundBoard.name = boardRequestDto.name
+            foundBoard.usingStatus = boardRequestDto.usingStatus
             boardRepository.save(foundBoard)
             return foundBoard.toResponseDto()
         }
