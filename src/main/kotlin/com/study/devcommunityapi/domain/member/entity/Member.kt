@@ -15,30 +15,30 @@ class Member(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = 0,
+    var id: Long? = 0,
 
     @Column(nullable = false, unique = true, length = 50, updatable = false)
-    val email: String,
+    var email: String,
 
     @Column(nullable = false, length = 100)
-    val password: String,
+    var password: String,
 
     @Column(nullable = false, length = 10)
-    val name: String,
+    var name: String,
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    val birthDate: LocalDate,
+    var birthDate: LocalDate,
 
     @Column(nullable = false, length = 5)
     @Enumerated(EnumType.STRING)
-    val gender: Gender,
+    var gender: Gender,
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "member_role", joinColumns = [JoinColumn(name = "id")])
     var memberRoleList: MutableList<MemberRole> = ArrayList()
 
-    ): BaseEntity() {
+): BaseEntity() {
 
     private fun LocalDate.formatDate(): String =
         this.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
@@ -58,6 +58,7 @@ class Member(
             name,
             birthDate.formatDate(),
             gender.desc,
+            memberRoleList
         )
 
 }

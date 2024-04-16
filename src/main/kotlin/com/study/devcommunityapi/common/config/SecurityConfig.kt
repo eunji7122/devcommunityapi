@@ -24,9 +24,11 @@ class SecurityConfig {
 
 //        val mvcMatcherBuilder = MvcRequestMatcher.Builder(introspector)
 
-        http.cors { it.configurationSource(corsConfigurationSource()) }
-        http.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-        http.csrf { it.disable() }
+        http
+            .httpBasic{ it.disable() }
+            .cors { it.configurationSource(corsConfigurationSource()) }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .csrf { it.disable() }
 
         return http.build()
     }
