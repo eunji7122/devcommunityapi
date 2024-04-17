@@ -1,4 +1,4 @@
-package com.study.devcommunityapi.common.status
+package com.study.devcommunityapi.common.util.status
 
 enum class ResultCode(val msg: String) {
     SUCCESS("정상 처리 되었습니다."),

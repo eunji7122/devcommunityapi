@@ -1,12 +1,13 @@
 package com.study.devcommunityapi.domain.member.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.study.devcommunityapi.common.annotation.ValidEnum
+import com.study.devcommunityapi.common.util.annotation.ValidEnum
 import com.study.devcommunityapi.domain.member.entity.Gender
 import com.study.devcommunityapi.domain.member.entity.Member
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -61,6 +62,6 @@ data class MemberRequestDto(
     private fun String.toLocalDate(): LocalDate =
         LocalDate.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-    fun toEntity(): Member =
-        Member(id, email, password, name, birthDate, gender, ArrayList())
+    fun toEntity(passwordEncoder: PasswordEncoder): Member =
+        Member(id, email, passwordEncoder.encode(password), name, birthDate, gender, ArrayList())
 }

@@ -1,4 +1,4 @@
-package com.study.devcommunityapi.common.annotation
+package com.study.devcommunityapi.common.util.annotation
 
 import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator

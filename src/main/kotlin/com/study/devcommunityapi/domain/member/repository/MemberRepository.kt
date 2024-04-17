@@ -10,5 +10,5 @@ interface MemberRepository: JpaRepository<Member, Long> {
 
     @EntityGraph(attributePaths = ["memberRoleList"])
     @Query("select m from Member m where m.email = :email")
-    fun getMemberWithRoles(@Param("email") email: String): Member?
+    fun findMemberWithRoles(@Param("email") email: String): Member?
 }

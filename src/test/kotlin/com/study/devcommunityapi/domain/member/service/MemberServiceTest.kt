@@ -1,5 +1,6 @@
 package com.study.devcommunityapi.domain.member.service
 
+import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.entity.MemberRole
 import jakarta.transaction.Transactional
@@ -17,12 +18,12 @@ class MemberServiceTest @Autowired constructor(
     @Test
     @Transactional
     @DisplayName("회원가입")
-    fun register() {
+    fun signUp() {
 
-        val createdMember = memberService.register(MemberRequestDto(
+        val createdMember = memberService.signUp(MemberRequestDto(
             null,
             "user1@test.com",
-            "user1",
+            "password",
             "user1",
             "2000-01-01",
             "WOMAN"
@@ -33,22 +34,33 @@ class MemberServiceTest @Autowired constructor(
     }
 
     @Test
+    @DisplayName("로그인")
+    fun signIn() {
+
+        val loginMemberRequestDto = LoginMemberRequestDto("user1@test.com", "password")
+        val loginMember = memberService.signIn(loginMemberRequestDto)
+
+        Assertions.assertThat(loginMember.name).isEqualTo("user1@test.com")
+
+    }
+
+    @Test
     @Transactional
     @DisplayName("회원 정보 조회")
     fun getMemberWithRoles() {
 
-        val createdMember = memberService.register(MemberRequestDto(
+        val createdMember = memberService.signUp(MemberRequestDto(
             null,
-            "user1@test.com",
-            "user1",
-            "user1",
+            "user2@test.com",
+            "password",
+            "user2",
             "2000-01-01",
             "WOMAN"
         ))
 
         val member = memberService.getMemberWithRoles(createdMember.email)
 
-        Assertions.assertThat(member.email).isEqualTo("user1@test.com")
+        Assertions.assertThat(member.email).isEqualTo("user2@test.com")
         Assertions.assertThat(member.roleNames[0]).isEqualTo(MemberRole.USER)
     }
 
@@ -57,7 +69,7 @@ class MemberServiceTest @Autowired constructor(
     @DisplayName("회원 정보 수정")
     fun updateMember() {
 
-        val createdMember = memberService.register(MemberRequestDto(
+        val createdMember = memberService.signUp(MemberRequestDto(
             null,
             "user1@test.com",
             "user1",

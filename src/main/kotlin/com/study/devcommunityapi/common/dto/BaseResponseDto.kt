@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.common.dto
 
-import com.study.devcommunityapi.common.status.ResultCode
+import com.study.devcommunityapi.common.util.status.ResultCode
 
 data class BaseResponseDto<T>(
 
