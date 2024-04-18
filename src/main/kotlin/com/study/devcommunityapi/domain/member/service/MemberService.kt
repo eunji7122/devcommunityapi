@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.domain.member.service
 
-import com.study.devcommunityapi.common.util.exception.InvalidInputException
+import com.study.devcommunityapi.common.exception.InvalidInputException
 import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto

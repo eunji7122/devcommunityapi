@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.domain.board.entity
 
-import com.study.devcommunityapi.common.entity.BaseEntity
+import com.study.devcommunityapi.common.util.entity.BaseEntity
 import com.study.devcommunityapi.domain.board.dto.BoardResponseDto
 import jakarta.persistence.*
 

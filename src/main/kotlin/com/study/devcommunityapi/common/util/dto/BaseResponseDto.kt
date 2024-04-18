@@ -1,4 +1,4 @@
-package com.study.devcommunityapi.common.dto
+package com.study.devcommunityapi.common.util.dto
 
 import com.study.devcommunityapi.common.util.status.ResultCode
 

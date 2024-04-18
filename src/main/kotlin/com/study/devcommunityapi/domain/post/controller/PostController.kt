@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.domain.post.controller
 
-import com.study.devcommunityapi.common.dto.BaseResponseDto
+import com.study.devcommunityapi.common.util.dto.BaseResponseDto
 import com.study.devcommunityapi.domain.post.dto.PostRequestDto
 import com.study.devcommunityapi.domain.post.dto.PostResponseDto
 import com.study.devcommunityapi.domain.post.service.PostService

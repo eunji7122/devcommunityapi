@@ -1,4 +1,4 @@
-package com.study.devcommunityapi.common.entity
+package com.study.devcommunityapi.common.util.entity
 
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate

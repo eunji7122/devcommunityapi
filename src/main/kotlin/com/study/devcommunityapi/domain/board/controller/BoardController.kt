@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.domain.board.controller
 
-import com.study.devcommunityapi.common.dto.BaseResponseDto
+import com.study.devcommunityapi.common.util.dto.BaseResponseDto
 import com.study.devcommunityapi.domain.board.dto.BoardRequestDto
 import com.study.devcommunityapi.domain.board.dto.BoardResponseDto
 import com.study.devcommunityapi.domain.board.service.BoardService

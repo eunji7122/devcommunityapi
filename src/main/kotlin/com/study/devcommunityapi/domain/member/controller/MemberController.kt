@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.domain.member.controller
 
-import com.study.devcommunityapi.common.dto.BaseResponseDto
+import com.study.devcommunityapi.common.util.dto.BaseResponseDto
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto
 import com.study.devcommunityapi.domain.member.service.MemberService

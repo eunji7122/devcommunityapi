@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.domain.member.entity
 
-import com.study.devcommunityapi.common.entity.BaseEntity
+import com.study.devcommunityapi.common.util.entity.BaseEntity
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto
 import jakarta.persistence.*
 import lombok.*
@@ -43,11 +43,11 @@ class Member(
     private fun LocalDate.formatDate(): String =
         this.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
 
-    public fun addMemberRole(role: MemberRole) {
+    fun addMemberRole(role: MemberRole) {
         memberRoleList.add(role)
     }
 
-    public fun clearRole() {
+    fun clearRole() {
         memberRoleList.clear()
     }
 

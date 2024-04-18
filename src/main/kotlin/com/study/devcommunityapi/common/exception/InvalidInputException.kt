@@ -1,4 +1,4 @@
-package com.study.devcommunityapi.common.util.exception
+package com.study.devcommunityapi.common.exception
 
 class InvalidInputException (
     val fieldName: String = "",
