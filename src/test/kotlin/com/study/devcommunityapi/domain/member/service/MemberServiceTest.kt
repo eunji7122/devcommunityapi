@@ -1,5 +1,6 @@
 package com.study.devcommunityapi.domain.member.service
 
+import com.study.devcommunityapi.common.util.dto.CustomUser
 import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.entity.MemberRole
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.core.context.SecurityContextHolder
 
 @SpringBootTest
 class MemberServiceTest @Autowired constructor(
@@ -40,7 +42,12 @@ class MemberServiceTest @Autowired constructor(
         val loginMemberRequestDto = LoginMemberRequestDto("user1@test.com", "password")
         val loginMember = memberService.signIn(loginMemberRequestDto)
 
-        Assertions.assertThat(loginMember.name).isEqualTo("user1@test.com")
+        val userId = (SecurityContextHolder
+            .getContext()
+            .authentication
+            .principal as CustomUser).userId
+
+        Assertions.assertThat(userId).isEqualTo(35)
 
     }
 

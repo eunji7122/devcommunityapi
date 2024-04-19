@@ -1,6 +1,8 @@
 package com.study.devcommunityapi.domain.member.controller
 
 import com.study.devcommunityapi.common.util.dto.BaseResponseDto
+import com.study.devcommunityapi.common.util.dto.TokenDto
+import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto
 import com.study.devcommunityapi.domain.member.service.MemberService
@@ -22,6 +24,12 @@ class MemberController(
     fun signUp(@RequestBody @Valid memberRequestDto: MemberRequestDto): BaseResponseDto<MemberResponseDto> {
         val createdMember = memberService.signUp(memberRequestDto)
         return BaseResponseDto(data = createdMember)
+    }
+
+    @PostMapping("/signIn")
+    fun signIn(@RequestBody @Valid loginMemberRequestDto: LoginMemberRequestDto): BaseResponseDto<TokenDto> {
+        val token = memberService.signIn(loginMemberRequestDto)
+        return BaseResponseDto(data = token)
     }
 
     @GetMapping("/me")

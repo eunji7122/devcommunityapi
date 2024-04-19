@@ -1,6 +1,8 @@
 package com.study.devcommunityapi.domain.member.service
 
 import com.study.devcommunityapi.common.exception.InvalidInputException
+import com.study.devcommunityapi.common.security.provider.JwtTokenProvider
+import com.study.devcommunityapi.common.util.dto.TokenDto
 import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto
@@ -10,8 +12,7 @@ import com.study.devcommunityapi.domain.member.repository.MemberRepository
 import jakarta.transaction.Transactional
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -22,6 +23,7 @@ class MemberService(
     private val memberRepository: MemberRepository,
     private val authenticationManagerBuilder: AuthenticationManagerBuilder,
     private val passwordEncoder: PasswordEncoder,
+    private val jwtTokenProvider: JwtTokenProvider
 ) {
 
     fun signUp(memberRequestDto: MemberRequestDto): MemberResponseDto {
@@ -37,7 +39,7 @@ class MemberService(
         return memberRepository.save(member).toResponseDto()
     }
 
-    fun signIn(loginMemberRequestDto: LoginMemberRequestDto): Authentication {
+    fun signIn(loginMemberRequestDto: LoginMemberRequestDto): TokenDto {
 
         val foundMember = memberRepository.findMemberWithRoles(loginMemberRequestDto.loginId)
             ?: throw UsernameNotFoundException("회원 아이디(${loginMemberRequestDto.loginId})가 존재하지 않는 유저입니다.")
@@ -46,17 +48,17 @@ class MemberService(
             throw UsernameNotFoundException("아이디 혹은 비밀번호를 확인하세요.")
         }
 
-        // 사용자 인증을 위한 Authentication 토큰 객체 (인증 전)
         val authenticationToken = UsernamePasswordAuthenticationToken(loginMemberRequestDto.loginId, foundMember.password)
-
-        // authenticationManagerBuilder를 통해 인증된 Authentication 객체를 반환
-        // 인증 실패 시, 에러 발생
         val authentication = authenticationManagerBuilder.`object`.authenticate(authenticationToken)
+        val authorities: String = authentication
+            .authorities
+            .joinToString(",", transform = GrantedAuthority::getAuthority)
 
-        // 인증된 Authentication 객체를 SecurityContextHolder에 저장
-        SecurityContextHolder.getContext().authentication = authentication
+        return TokenDto(JwtTokenProvider.TOKEN_PREFIX,
+                        jwtTokenProvider.createAccessToken(loginMemberRequestDto.loginId, authorities),
+                        jwtTokenProvider.createRefreshToken(loginMemberRequestDto.loginId, authorities)
+        )
 
-        return authentication
     }
 
     fun getMemberWithRoles(email: String): MemberResponseDto {
