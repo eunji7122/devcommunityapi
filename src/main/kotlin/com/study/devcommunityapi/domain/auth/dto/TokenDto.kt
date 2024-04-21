@@ -1,4 +1,4 @@
-package com.study.devcommunityapi.common.util.dto
+package com.study.devcommunityapi.domain.auth.dto
 
 data class TokenDto(
     val grantType: String,

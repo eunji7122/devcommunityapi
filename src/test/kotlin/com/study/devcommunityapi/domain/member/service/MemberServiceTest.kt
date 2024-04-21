@@ -1,6 +1,7 @@
 package com.study.devcommunityapi.domain.member.service
 
 import com.study.devcommunityapi.common.util.dto.CustomUser
+import com.study.devcommunityapi.domain.auth.service.AuthService
 import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.entity.MemberRole
@@ -14,15 +15,16 @@ import org.springframework.security.core.context.SecurityContextHolder
 
 @SpringBootTest
 class MemberServiceTest @Autowired constructor(
-    val memberService: MemberService
+    val memberService: MemberService,
+    val authService: AuthService
 ) {
 
     @Test
     @Transactional
     @DisplayName("회원가입")
-    fun signUp() {
+    fun createMember() {
 
-        val createdMember = memberService.signUp(MemberRequestDto(
+        val createdMember = memberService.createMember(MemberRequestDto(
             null,
             "user1@test.com",
             "password",
@@ -40,12 +42,12 @@ class MemberServiceTest @Autowired constructor(
     fun signIn() {
 
         val loginMemberRequestDto = LoginMemberRequestDto("user1@test.com", "password")
-        val loginMember = memberService.signIn(loginMemberRequestDto)
+        val loginMember = authService.signIn(loginMemberRequestDto)
 
         val userId = (SecurityContextHolder
             .getContext()
             .authentication
-            .principal as CustomUser).userId
+            .principal as CustomUser).username
 
         Assertions.assertThat(userId).isEqualTo(35)
 
@@ -56,7 +58,7 @@ class MemberServiceTest @Autowired constructor(
     @DisplayName("회원 정보 조회")
     fun getMemberWithRoles() {
 
-        val createdMember = memberService.signUp(MemberRequestDto(
+        val createdMember = memberService.createMember(MemberRequestDto(
             null,
             "user2@test.com",
             "password",
@@ -65,7 +67,7 @@ class MemberServiceTest @Autowired constructor(
             "WOMAN"
         ))
 
-        val member = memberService.getMemberWithRoles(createdMember.email)
+        val member = memberService.findMemberWithRoles(createdMember.email)
 
         Assertions.assertThat(member.email).isEqualTo("user2@test.com")
         Assertions.assertThat(member.roleNames[0]).isEqualTo(MemberRole.USER)
@@ -76,7 +78,7 @@ class MemberServiceTest @Autowired constructor(
     @DisplayName("회원 정보 수정")
     fun updateMember() {
 
-        val createdMember = memberService.signUp(MemberRequestDto(
+        val createdMember = memberService.createMember(MemberRequestDto(
             null,
             "user1@test.com",
             "user1",

@@ -1,12 +1,12 @@
 package com.study.devcommunityapi.domain.member.controller
 
 import com.study.devcommunityapi.common.util.dto.BaseResponseDto
-import com.study.devcommunityapi.common.util.dto.TokenDto
-import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
+import com.study.devcommunityapi.common.util.dto.CustomUser
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto
 import com.study.devcommunityapi.domain.member.service.MemberService
 import jakarta.validation.Valid
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -20,21 +20,16 @@ class MemberController(
     private val memberService: MemberService
 ) {
 
-    @PostMapping("/signUp")
+    @PostMapping("/")
     fun signUp(@RequestBody @Valid memberRequestDto: MemberRequestDto): BaseResponseDto<MemberResponseDto> {
-        val createdMember = memberService.signUp(memberRequestDto)
+        val createdMember = memberService.createMember(memberRequestDto)
         return BaseResponseDto(data = createdMember)
     }
 
-    @PostMapping("/signIn")
-    fun signIn(@RequestBody @Valid loginMemberRequestDto: LoginMemberRequestDto): BaseResponseDto<TokenDto> {
-        val token = memberService.signIn(loginMemberRequestDto)
-        return BaseResponseDto(data = token)
-    }
-
     @GetMapping("/me")
-    fun getMe(email: String): BaseResponseDto<MemberResponseDto> {
-        val foundMember = memberService.getMemberWithRoles(email)
+    fun getMe(): BaseResponseDto<MemberResponseDto> {
+        val email = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+        val foundMember = memberService.findMemberWithRoles(email)
         return BaseResponseDto(data = foundMember)
     }
 

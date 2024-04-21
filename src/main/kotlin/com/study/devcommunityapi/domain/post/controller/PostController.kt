@@ -19,8 +19,8 @@ class PostController(
     }
 
     @GetMapping("/{id}")
-    fun getPost(@PathVariable id: Long): BaseResponseDto<PostResponseDto> {
-        val post = postService.getPost(id) ?: return BaseResponseDto(message = "삭제된 게시글입니다.")
+    fun getPost(@PathVariable id: Long): BaseResponseDto<PostResponseDto>? {
+        val post = postService.getPost(id) ?: return null
         return BaseResponseDto(data = post)
     }
 

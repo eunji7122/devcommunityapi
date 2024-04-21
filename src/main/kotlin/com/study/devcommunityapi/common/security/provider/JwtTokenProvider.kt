@@ -26,8 +26,10 @@ class JwtTokenProvider {
     }
 
     companion object {
-        const val ACCESS_EXPIRATION_MILLISECONDS: Long = 1000 * 60 // 1000 = 1초
-        const val REFRESH_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 10 // 1000 = 1초
+        // 1000 = 1초
+        const val ACCESS_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 10   // 10분
+        const val REFRESH_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 30  // 30분
+        const val REISSUE_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 20  // 20분
 
         const val TOKEN_HEADER: String = "Authorization"
         const val TOKEN_PREFIX: String = "Bearer"
@@ -40,7 +42,6 @@ class JwtTokenProvider {
 
         return Jwts.builder()
             .claim("auth", authority)
-            .claim("userId", username)
             .setSubject(username)
             .setIssuedAt(now)
             .setExpiration(tokenExpiration)
@@ -84,7 +85,7 @@ class JwtTokenProvider {
         }
     }
 
-    private fun getClaims(token: String): Claims {
+    fun getClaims(token: String): Claims {
         return Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
@@ -95,7 +96,6 @@ class JwtTokenProvider {
     fun getAuthentication(token: String): Authentication {
         val claims: Claims = getClaims(token)
         val auth = claims["auth"] ?: throw RuntimeException("잘못된 토큰 입니다.")
-        val userId = claims["userId"] ?: throw RuntimeException("잘못된 토큰 입니다.")
 
         // 권한 정보 추출
         val authorities: Collection<GrantedAuthority> = (auth as String)
@@ -103,10 +103,16 @@ class JwtTokenProvider {
             .map { SimpleGrantedAuthority(it) }
 
         val principal: UserDetails =
-            CustomUser(userId.toString().toLong(), claims.subject, "", authorities)
+            CustomUser(claims.subject, "", authorities)
 //        val principal: UserDetails = customUserDetailsService.loadUserByUsername(token)
 
         return UsernamePasswordAuthenticationToken(principal, "", authorities)
+    }
+
+    fun getRemainTime(token: String): Long {
+        val expiration: Date = getClaims(token).expiration
+        val now = Date()
+        return expiration.time - now.time
     }
 
 }

@@ -27,13 +27,17 @@ class SecurityConfig(
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity, introspector: HandlerMappingIntrospector): SecurityFilterChain? {
 
-//        val mvcMatcherBuilder = MvcRequestMatcher.Builder(introspector)
-
         http
             .httpBasic{ it.disable() }
             .cors { it.configurationSource(corsConfigurationSource()) }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .csrf { it.disable() }
+            .authorizeHttpRequests {
+                it.requestMatchers("/api/members/").permitAll()
+                it.requestMatchers("/api/auth/**").permitAll()
+                it.requestMatchers("/api/**").hasAnyRole("USER")
+                it.anyRequest().permitAll()
+            }
             .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
