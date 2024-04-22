@@ -1,11 +1,17 @@
 package com.study.devcommunityapi.domain.post.service
 
+import com.study.devcommunityapi.common.util.dto.PageResponseDto
 import com.study.devcommunityapi.domain.board.repository.BoardRepository
 import com.study.devcommunityapi.domain.post.dto.PostRequestDto
 import com.study.devcommunityapi.domain.post.dto.PostResponseDto
+import com.study.devcommunityapi.domain.post.entity.Post
 import com.study.devcommunityapi.domain.post.repository.PostRepository
-import org.springframework.data.repository.findByIdOrNull
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -53,6 +59,26 @@ class PostService(
         if (foundPost != null) {
             postRepository.delete(foundPost)
         }
+    }
+
+    fun getPostsByPageRequest(postRequestDto: PostRequestDto): PageResponseDto<PostResponseDto>? {
+        val pageable: Pageable = PageRequest.of(
+            postRequestDto.pageRequestDto.page - 1,
+            postRequestDto.pageRequestDto.size,
+            Sort.by("id").descending()
+        )
+
+        val posts: Page<Post> = postRepository.findAllByBoardId(postRequestDto.boardId, pageable)
+
+        val dtoList: List<PostResponseDto> = posts.get().map { it.toResponseDto() }.toList()
+
+        return PageResponseDto(
+            dtoList,
+            posts.pageable.pageNumber + 1,
+            posts.pageable.pageSize,
+            posts.totalElements,
+            posts.totalPages
+        )
     }
 
 }

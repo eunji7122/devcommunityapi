@@ -1,5 +1,6 @@
 package com.study.devcommunityapi.domain.post.service
 
+import com.study.devcommunityapi.common.util.dto.PageRequestDto
 import com.study.devcommunityapi.domain.post.dto.PostRequestDto
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions
@@ -18,7 +19,7 @@ class PostServiceTest @Autowired constructor(
     @DisplayName("게시글 생성")
     fun createPost() {
 
-        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0)
+        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0, PageRequestDto(1, 10))
         val createdPost = postService.createPost(postDto)
 
         Assertions.assertThat(createdPost!!.title).isEqualTo("post_title_1")
@@ -33,7 +34,7 @@ class PostServiceTest @Autowired constructor(
     @DisplayName("게시글 조회")
     fun getPost() {
 
-        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0)
+        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0, PageRequestDto(1, 10))
         val createdPost = postService.createPost(postDto)
 
         val foundPost = postService.getPost(createdPost!!.id)
@@ -50,7 +51,7 @@ class PostServiceTest @Autowired constructor(
     @DisplayName("게시글 목록 조회")
     fun getAllPostsByBoardId() {
 
-        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0)
+        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0, PageRequestDto(1, 10))
         val foundPosts = postService.getAllPostsByBoardId(postDto)
 
         Assertions.assertThat(foundPosts!!.size).isEqualTo(0)
@@ -62,14 +63,14 @@ class PostServiceTest @Autowired constructor(
     @DisplayName("게시글 수정")
     fun updatePost() {
 
-        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0)
+        val postDto = PostRequestDto(null, "post_title_1", "post_content_1", 1, 0, PageRequestDto(1, 10))
         val createdPost = postService.createPost(postDto)
 
         val foundPost = postService.getPost(createdPost!!.id)
 
         val updatedPost = postService.updatePost(
             foundPost!!.id,
-            PostRequestDto(foundPost.id, "post_title_2", "post_content_2", 1, 1)
+            PostRequestDto(foundPost.id, "post_title_2", "post_content_2", 1, 1, PageRequestDto(1, 10))
         )
 
         Assertions.assertThat(updatedPost!!.title).isEqualTo("post_title_2")
@@ -77,4 +78,21 @@ class PostServiceTest @Autowired constructor(
 
     }
 
+
+    @Test
+    @DisplayName("게시글 목록 조회")
+    fun getPostsByPageRequest() {
+        val postDto = PostRequestDto(
+            null,
+            null,
+            null,
+            33,
+            0,
+            PageRequestDto(1, 10)
+        )
+        val foundPosts = postService.getPostsByPageRequest(postDto)
+
+        Assertions.assertThat(foundPosts!!.size).isEqualTo(5)
+
+    }
 }
