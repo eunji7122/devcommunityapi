@@ -3,7 +3,6 @@ package com.study.devcommunityapi.domain.board.service
 //import org.junit.jupiter.api.Assertions
 
 import com.study.devcommunityapi.domain.board.dto.BoardRequestDto
-import com.study.devcommunityapi.domain.board.dto.BoardResponseDto
 import jakarta.transaction.Transactional
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
@@ -21,10 +20,10 @@ class BoardServiceTest @Autowired constructor(
     @DisplayName("보드 생성")
     fun createBoard() {
 
-        val boardDto = BoardRequestDto(null, "board_test", true)
+        val boardDto = BoardRequestDto(null, "board_test_2", true)
         val createdBoard = boardService.createBoard(boardDto)
 
-        Assertions.assertThat(createdBoard!!.name).isEqualTo("board_test")
+        Assertions.assertThat(createdBoard!!.name).isEqualTo("board_test_2")
         Assertions.assertThat(createdBoard.usingStatus).isEqualTo(true)
 
     }

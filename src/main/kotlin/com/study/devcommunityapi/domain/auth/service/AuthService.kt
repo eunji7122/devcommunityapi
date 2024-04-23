@@ -20,7 +20,7 @@ class AuthService(
 ) {
 
     fun signIn(loginMemberRequestDto: LoginMemberRequestDto): TokenDto {
-        val foundMember = memberService.findMember(loginMemberRequestDto.loginId)
+        val foundMember = memberService.findMemberByEmail(loginMemberRequestDto.loginId)
 
         if (!memberService.checkPassword(loginMemberRequestDto.password, foundMember.password)) {
             throw UsernameNotFoundException("아이디 혹은 비밀번호를 확인하세요.")

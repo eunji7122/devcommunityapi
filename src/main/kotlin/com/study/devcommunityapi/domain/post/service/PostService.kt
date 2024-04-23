@@ -1,7 +1,9 @@
 package com.study.devcommunityapi.domain.post.service
 
+import com.study.devcommunityapi.common.util.dto.CustomUser
 import com.study.devcommunityapi.common.util.dto.PageResponseDto
-import com.study.devcommunityapi.domain.board.repository.BoardRepository
+import com.study.devcommunityapi.domain.board.service.BoardService
+import com.study.devcommunityapi.domain.member.service.MemberService
 import com.study.devcommunityapi.domain.post.dto.PostRequestDto
 import com.study.devcommunityapi.domain.post.dto.PostResponseDto
 import com.study.devcommunityapi.domain.post.entity.Post
@@ -12,18 +14,23 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
 @Transactional
 class PostService(
     private val postRepository: PostRepository,
-    private val boardRepository: BoardRepository,
+    private val boardService: BoardService,
+    private val memberService: MemberService,
 ) {
 
     fun createPost(postRequestDto: PostRequestDto) : PostResponseDto? {
-        val findBoard = boardRepository.findByIdOrNull(postRequestDto.boardId)
-        return postRepository.save(postRequestDto.toEntity(findBoard!!)).toResponseDto()
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw RuntimeException("로그인 정보가 없습니다.")
+        val foundBoard = boardService.getBoardEntity(postRequestDto.boardId)
+        val foundMember = memberService.findMemberByEmail(username)
+        return postRepository.save(postRequestDto.toEntity(foundBoard, foundMember)).toResponseDto()
     }
 
     fun getPost(id: Long) : PostResponseDto? {

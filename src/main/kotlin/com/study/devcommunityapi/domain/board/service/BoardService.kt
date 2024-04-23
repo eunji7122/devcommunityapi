@@ -2,6 +2,7 @@ package com.study.devcommunityapi.domain.board.service
 
 import com.study.devcommunityapi.domain.board.dto.BoardRequestDto
 import com.study.devcommunityapi.domain.board.dto.BoardResponseDto
+import com.study.devcommunityapi.domain.board.entity.Board
 import com.study.devcommunityapi.domain.board.repository.BoardRepository
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
@@ -20,6 +21,10 @@ class BoardService(
     fun getBoard(id: Long) : BoardResponseDto? {
         val foundBoard = boardRepository.findByIdOrNull(id)
         return foundBoard?.toResponseDto()
+    }
+
+    fun getBoardEntity(id: Long): Board {
+        return boardRepository.findByIdOrNull(id) ?: throw RuntimeException("존재하지 않는 게시판입니다.")
     }
 
     fun getAllBoards() : List<BoardResponseDto>? {

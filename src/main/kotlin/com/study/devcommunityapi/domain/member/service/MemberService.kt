@@ -36,7 +36,7 @@ class MemberService(
         return foundMember.toResponseDto()
     }
 
-    fun findMember(email: String): Member {
+    fun findMemberByEmail(email: String): Member {
         val foundMember = memberRepository.findMemberWithRoles(email)
             ?: throw InvalidInputException("email", "회원 아이디(${email})가 존재하지 않는 유저입니다.")
         return foundMember
