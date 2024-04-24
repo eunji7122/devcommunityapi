@@ -2,6 +2,7 @@ package com.study.devcommunityapi.domain.member.entity
 
 import com.study.devcommunityapi.common.util.entity.BaseEntity
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto
+import com.study.devcommunityapi.domain.member.dto.MemberSummaryResponseDto
 import jakarta.persistence.*
 import lombok.*
 import java.time.LocalDate
@@ -59,6 +60,13 @@ class Member(
             birthDate.formatDate(),
             gender.desc,
             memberRoleList
+        )
+
+    fun toSummaryResponseDto(): MemberSummaryResponseDto =
+        MemberSummaryResponseDto(
+            id!!,
+            email,
+            name
         )
 
 }

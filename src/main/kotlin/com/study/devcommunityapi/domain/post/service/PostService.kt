@@ -41,6 +41,10 @@ class PostService(
         return foundPost?.toResponseDto()
     }
 
+    fun getPostEntity(id: Long): Post {
+        return postRepository.findByIdOrNull(id) ?: throw RuntimeException("존재하지 않는 게시글입니다.")
+    }
+
     fun getAllPostsByBoardId(postRequestDto: PostRequestDto) : List<PostResponseDto>? {
         return postRepository.findAllByBoardId(postRequestDto.boardId).stream().map {
             it.toResponseDto()
