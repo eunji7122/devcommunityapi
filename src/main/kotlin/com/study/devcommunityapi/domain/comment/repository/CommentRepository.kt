@@ -9,9 +9,12 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CommentRepository: JpaRepository<Comment, Long> {
 
-    @Query(value = "SELECT c FROM Comment c JOIN CommentPath p ON c.id = p.mainComment.id WHERE c.post.id = :postId AND p.mainComment.id = p.subComment.id Order by p.createdAt")
+    @Query(value = "SELECT c FROM Comment c JOIN CommentHierarchy p ON c.id = p.ancestorCommentId WHERE c.post.id = :postId AND p.ancestorCommentId = p.descendantCommentId Order by c.createdAt")
     fun findAllByPostId(postId: Long) : List<Comment>
 
-    @Query(value = "SELECT c FROM Comment c JOIN CommentPath p ON c.id = p.subComment.id WHERE p.mainComment.id = :mainCommentId AND p.mainComment.id != p.subComment.id ORDER BY p.createdAt")
-    fun findSubComments(@Param("mainCommentId") mainCommentId: Long) : List<Comment>
+    @Query("SELECT c FROM Comment c JOIN CommentHierarchy p ON c.id = p.descendantCommentId WHERE p.ancestorCommentId = :commentId Order by c.createdAt")
+    fun findByCommentIdWithDescendant(@Param("commentId") commentId: Long): List<Comment>
+
+    @Query(value = "SELECT c FROM Comment c JOIN CommentHierarchy p ON c.id = p.descendantCommentId WHERE p.ancestorCommentId = :ancestorCommentId AND p.ancestorCommentId != p.descendantCommentId")
+    fun findDescendantComments(@Param("ancestorCommentId") ancestorCommentId: Long) : List<Comment>
 }

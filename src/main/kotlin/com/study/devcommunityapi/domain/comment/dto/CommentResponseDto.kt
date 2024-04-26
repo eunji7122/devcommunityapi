@@ -7,6 +7,5 @@ data class CommentResponseDto(
     val id: Long,
     val contents: String,
     val member: MemberSummaryResponseDto,
-    val subComments: List<CommentResponseDto>?,
     val deletedAt: LocalDateTime?
 )

@@ -15,11 +15,10 @@ import org.springframework.stereotype.Service
 @Transactional
 class CommentService(
     private val commentRepository: CommentRepository,
-    private val commentPathService: CommentPathService,
+    private val commentHierarchyService: CommentHierarchyService,
     private val memberService: MemberService,
     private val postService: PostService,
 ) {
-
     fun createComment(commentRequestDto: CommentRequestDto): CommentResponseDto {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
             ?: throw RuntimeException("로그인 정보가 없습니다.")
@@ -27,37 +26,48 @@ class CommentService(
         val foundPost = postService.getPostEntity(commentRequestDto.postId)
 
         val createdComment = commentRepository.save(commentRequestDto.toEntity(foundMember, foundPost))
+        commentHierarchyService.saveSelfCommentHierarchy(createdComment.id!!)
 
         // 부모 댓글이 존재하는 경우
-        if (commentRequestDto.mainCommentId != null) {
+        if (commentRequestDto.ancestorCommentId != null) {
             // 부모 댓글 가져오기
-            val foundMainComment = commentRepository.findByIdOrNull(commentRequestDto.mainCommentId)
-                ?: throw RuntimeException("존재하지 않는 댓글입니다.")
-            commentPathService.saveCommentPath(foundMainComment, createdComment)
-        }
+            val foundAncestorComment = commentRepository.findByIdOrNull(commentRequestDto.ancestorCommentId)
+                ?: throw RuntimeException("부모 댓글이 존재하지 않습니다.")
 
-        commentPathService.saveCommentPath(createdComment, createdComment)
+            if (foundAncestorComment.id != null) {
+                commentHierarchyService.saveAncestorCommentsHierarchy(foundAncestorComment.id, createdComment.id)
+            }
+        }
 
         return createdComment.toResponseDto()
     }
 
     fun getCommentsByPostId(postId: Long): List<CommentResponseDto> {
-        val foundComments = commentRepository.findAllByPostId(postId)
+//        val foundComments = commentRepository.findAllByPostId(postId)
+//
+//        return foundComments.stream().map {
+//            val foundDescendantComments = commentRepository.findDescendantComments(it.id!!)
+//            it.toResponseDto(foundDescendantComments.stream().map { subIt ->
+//                subIt.toResponseDto()
+//            }.toList())
+//        }.toList()
 
-        return foundComments.stream().map {
-            val foundSubComments = commentRepository.findSubComments(it.id!!)
-            it.toResponseDto(foundSubComments.stream().map { subIt ->
-                subIt.toResponseDto()
-            }.toList())
-        }.toList()
+        return commentRepository.findAllByPostId(postId).stream().map { it.toResponseDto() }.toList()
     }
 
     fun getComment(commentId: Long): CommentResponseDto? {
+//        val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw RuntimeException("존재하지 않는 댓글입니다.")
+//        val descendantComments = commentRepository.findDescendantComments(commentId)
+//        return foundComment.toResponseDto(descendantComments.stream().map {
+//            it.toResponseDto()
+//        }.toList())
+
         val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw RuntimeException("존재하지 않는 댓글입니다.")
-        val subComments = commentRepository.findSubComments(commentId)
-        return foundComment.toResponseDto(subComments.stream().map {
-            it.toResponseDto()
-        }.toList())
+        return foundComment.toResponseDto()
+    }
+
+    fun getCommentWithDescendant(commentId: Long): List<CommentResponseDto>? {
+        return commentRepository.findByCommentIdWithDescendant(commentId).stream().map { it.toResponseDto() }.toList()
     }
 
     fun updateComment(commentRequestDto: CommentRequestDto): CommentResponseDto {

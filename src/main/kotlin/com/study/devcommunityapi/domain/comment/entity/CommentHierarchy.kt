@@ -1,21 +1,22 @@
 package com.study.devcommunityapi.domain.comment.entity
 
-import com.study.devcommunityapi.common.util.entity.BaseEntity
 import jakarta.persistence.*
 
 @Entity
 @Table
-class CommentPath(
+class CommentHierarchy(
 
-    @ManyToOne
-    @JoinColumn(name = "main_comment_id", nullable = false)
-    val mainComment: Comment,
+    @Column(nullable = false)
+    val ancestorCommentId: Long,
 
-    @ManyToOne
-    @JoinColumn(name = "sub_comment_id", nullable = false)
-    val subComment: Comment,
+    @Column(nullable = false)
+    val descendantCommentId: Long,
 
-): BaseEntity() {
+    @Column(nullable = false)
+    var depth: Int,
+
+) {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null

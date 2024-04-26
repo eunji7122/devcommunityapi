@@ -30,33 +30,39 @@ class CommentServiceTest @Autowired constructor(
     @Test
     @DisplayName("댓글 생성")
     fun createComment() {
-        for (i: Int in 1..5)
+        for (i: Int in 1..2)
         {
             val commentDto = CommentRequestDto(
                 null,
-                "comment content $i",
+                "sub comment content $i",
                 1,
                 1,
-                null
+                11
             )
 
             commentService.createComment(commentDto)
         }
-
     }
 
     @Test
     @DisplayName("댓글 조회")
     fun getComment() {
-        val comment = commentService.getComment(15)
+        val comment = commentService.getComment(11)
         Assertions.assertThat(comment!!.contents).isEqualTo("main comment content")
+    }
+
+    @Test
+    @DisplayName("댓글 조회 with 자식 댓글")
+    fun getCommentWithDescendant() {
+        val comments = commentService.getCommentWithDescendant(11)
+        Assertions.assertThat(comments!!.size).isEqualTo(3)
     }
 
     @Test
     @DisplayName("모든 댓글 조회")
     fun getCommentsByPostId() {
-        val comments = commentService.getCommentsByPostId(2)
-        Assertions.assertThat(comments.size).isEqualTo(1)
+        val comments = commentService.getCommentsByPostId(1)
+        Assertions.assertThat(comments.size).isEqualTo(5)
     }
 
     @Test

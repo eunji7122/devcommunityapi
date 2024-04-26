@@ -21,7 +21,7 @@ data class CommentRequestDto(
     @JsonProperty("postId")
     private val _postId: Long?,
 
-    val mainCommentId: Long?,
+    val ancestorCommentId: Long?,
 ) {
     val contents: String
         get() = _contents!!
