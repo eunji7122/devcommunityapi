@@ -14,7 +14,7 @@ class PostController(
 ) {
     @GetMapping("/{id}")
     fun getPost(@PathVariable id: Long): BaseResponseDto<PostResponseDto>? {
-        val post = postService.getPost(id) ?: return null
+        val post = postService.getPost(id)
         return BaseResponseDto(data = post)
     }
 

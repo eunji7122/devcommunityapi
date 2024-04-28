@@ -1,5 +1,7 @@
 package com.study.devcommunityapi.domain.post.service
 
+import com.study.devcommunityapi.common.exception.NotFoundMemberException
+import com.study.devcommunityapi.common.exception.NotFoundPostException
 import com.study.devcommunityapi.common.util.dto.CustomUser
 import com.study.devcommunityapi.common.util.dto.PageResponseDto
 import com.study.devcommunityapi.domain.board.service.BoardService
@@ -27,22 +29,19 @@ class PostService(
 
     fun createPost(postRequestDto: PostRequestDto) : PostResponseDto? {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
-            ?: throw RuntimeException("로그인 정보가 없습니다.")
+            ?: throw NotFoundMemberException()
         val foundBoard = boardService.getBoardEntity(postRequestDto.boardId)
         val foundMember = memberService.findMemberByEmail(username)
         return postRepository.save(postRequestDto.toEntity(foundBoard, foundMember)).toResponseDto()
     }
 
     fun getPost(id: Long) : PostResponseDto? {
-        val foundPost = postRepository.findByIdOrNull(id)
-        if (foundPost?.deletedAt != null) {
-            return null
-        }
-        return foundPost?.toResponseDto()
+        val foundPost = postRepository.findByIdOrNull(id) ?: throw NotFoundPostException()
+        return foundPost.toResponseDto()
     }
 
     fun getPostEntity(id: Long): Post {
-        return postRepository.findByIdOrNull(id) ?: throw RuntimeException("존재하지 않는 게시글입니다.")
+        return postRepository.findByIdOrNull(id) ?: throw NotFoundPostException()
     }
 
     fun getAllPostsByBoardId(postRequestDto: PostRequestDto) : List<PostResponseDto>? {

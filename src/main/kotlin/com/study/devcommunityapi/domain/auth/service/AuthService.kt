@@ -1,5 +1,7 @@
 package com.study.devcommunityapi.domain.auth.service
 
+import com.study.devcommunityapi.common.exception.BadCredentialsException
+import com.study.devcommunityapi.common.exception.NotFoundTokenException
 import com.study.devcommunityapi.common.security.provider.JwtTokenProvider
 import com.study.devcommunityapi.domain.auth.dto.TokenDto
 import com.study.devcommunityapi.domain.member.dto.LoginMemberRequestDto
@@ -7,7 +9,6 @@ import com.study.devcommunityapi.domain.member.service.MemberService
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
 
@@ -23,7 +24,7 @@ class AuthService(
         val foundMember = memberService.findMemberByEmail(loginMemberRequestDto.loginId)
 
         if (!memberService.checkPassword(loginMemberRequestDto.password, foundMember.password)) {
-            throw UsernameNotFoundException("아이디 혹은 비밀번호를 확인하세요.")
+            throw BadCredentialsException()
         }
 
         val authenticationToken = UsernamePasswordAuthenticationToken(loginMemberRequestDto.loginId, foundMember.password)
@@ -63,7 +64,7 @@ class AuthService(
     }
 
     fun reissueToken(refreshToken: String): TokenDto {
-        refreshTokenService.findByRefreshToken(refreshToken) ?: throw RuntimeException("잘못된 리프레시 토큰입니다.")
+        refreshTokenService.findByRefreshToken(refreshToken) ?: throw NotFoundTokenException()
         return createToken(refreshToken)
     }
 }

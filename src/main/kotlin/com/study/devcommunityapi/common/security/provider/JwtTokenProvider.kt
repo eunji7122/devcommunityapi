@@ -1,5 +1,8 @@
 package com.study.devcommunityapi.common.security.provider
 
+import com.study.devcommunityapi.common.exception.IllegalArgumentException
+import com.study.devcommunityapi.common.exception.JwtExpiredException
+import com.study.devcommunityapi.common.exception.JwtMalformedException
 import com.study.devcommunityapi.common.util.dto.CustomUser
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
@@ -74,8 +77,8 @@ class JwtTokenProvider {
         } catch (e: Exception) {
             when (e) {
                 is SecurityException -> {} // Invalid JWT Token
-                is MalformedJwtException -> {} // Invalid JWT Token
-                is ExpiredJwtException -> {} // Expired JWT Token
+                is JwtMalformedException -> {} // Invalid JWT Token
+                is JwtExpiredException -> {} // Expired JWT Token
                 is UnsupportedJwtException -> {} // Unsupported JWT Token
                 is IllegalArgumentException -> {} // JWT claims string is empty
                 else -> {} // else
@@ -95,7 +98,7 @@ class JwtTokenProvider {
 
     fun getAuthentication(token: String): Authentication {
         val claims: Claims = getClaims(token)
-        val auth = claims["auth"] ?: throw RuntimeException("잘못된 토큰 입니다.")
+        val auth = claims["auth"] ?: throw JwtMalformedException()
 
         // 권한 정보 추출
         val authorities: Collection<GrantedAuthority> = (auth as String)

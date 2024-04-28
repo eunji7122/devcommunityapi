@@ -1,6 +1,7 @@
 package com.study.devcommunityapi.domain.member.service
 
-import com.study.devcommunityapi.common.exception.InvalidInputException
+import com.study.devcommunityapi.common.exception.ConflictMemberException
+import com.study.devcommunityapi.common.exception.NotFoundMemberException
 import com.study.devcommunityapi.domain.member.dto.MemberRequestDto
 import com.study.devcommunityapi.domain.member.dto.MemberResponseDto
 import com.study.devcommunityapi.domain.member.entity.Member
@@ -21,7 +22,7 @@ class MemberService(
 
         var member: Member? = memberRepository.findMemberWithRoles(memberRequestDto.email)
         if (member != null) {
-            throw InvalidInputException("email", "이미 등록된 아이디 입니다.")
+            throw ConflictMemberException()
         }
 
         member = memberRequestDto.toEntity(passwordEncoder)
@@ -32,13 +33,13 @@ class MemberService(
 
     fun findMemberWithRoles(email: String): MemberResponseDto {
         val foundMember = memberRepository.findMemberWithRoles(email)
-            ?: throw InvalidInputException("email", "회원 아이디(${email})가 존재하지 않는 유저입니다.")
+            ?: throw NotFoundMemberException()
         return foundMember.toResponseDto()
     }
 
     fun findMemberByEmail(email: String): Member {
         val foundMember = memberRepository.findMemberWithRoles(email)
-            ?: throw InvalidInputException("email", "회원 아이디(${email})가 존재하지 않는 유저입니다.")
+            ?: throw NotFoundMemberException()
         return foundMember
     }
 

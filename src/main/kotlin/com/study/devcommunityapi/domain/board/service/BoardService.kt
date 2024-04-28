@@ -1,5 +1,6 @@
 package com.study.devcommunityapi.domain.board.service
 
+import com.study.devcommunityapi.common.exception.NotFoundBoardException
 import com.study.devcommunityapi.domain.board.dto.BoardRequestDto
 import com.study.devcommunityapi.domain.board.dto.BoardResponseDto
 import com.study.devcommunityapi.domain.board.entity.Board
@@ -24,7 +25,7 @@ class BoardService(
     }
 
     fun getBoardEntity(id: Long): Board {
-        return boardRepository.findByIdOrNull(id) ?: throw RuntimeException("존재하지 않는 게시판입니다.")
+        return boardRepository.findByIdOrNull(id) ?: throw NotFoundBoardException()
     }
 
     fun getAllBoards() : List<BoardResponseDto>? {

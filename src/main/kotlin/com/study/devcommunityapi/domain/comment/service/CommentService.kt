@@ -1,5 +1,7 @@
 package com.study.devcommunityapi.domain.comment.service
 
+import com.study.devcommunityapi.common.exception.NotFoundCommentException
+import com.study.devcommunityapi.common.exception.NotFoundMemberException
 import com.study.devcommunityapi.common.util.dto.CustomUser
 import com.study.devcommunityapi.domain.comment.dto.CommentRequestDto
 import com.study.devcommunityapi.domain.comment.dto.CommentResponseDto
@@ -21,7 +23,7 @@ class CommentService(
 ) {
     fun createComment(commentRequestDto: CommentRequestDto): CommentResponseDto {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
-            ?: throw RuntimeException("로그인 정보가 없습니다.")
+            ?: throw NotFoundMemberException()
         val foundMember = memberService.findMemberByEmail(username)
         val foundPost = postService.getPostEntity(commentRequestDto.postId)
 
@@ -32,7 +34,7 @@ class CommentService(
         if (commentRequestDto.ancestorCommentId != null) {
             // 부모 댓글 가져오기
             val foundAncestorComment = commentRepository.findByIdOrNull(commentRequestDto.ancestorCommentId)
-                ?: throw RuntimeException("부모 댓글이 존재하지 않습니다.")
+                ?: throw NotFoundCommentException()
 
             if (foundAncestorComment.id != null) {
                 commentHierarchyService.saveAncestorCommentsHierarchy(foundAncestorComment.id, createdComment.id)
@@ -62,7 +64,7 @@ class CommentService(
 //            it.toResponseDto()
 //        }.toList())
 
-        val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw RuntimeException("존재하지 않는 댓글입니다.")
+        val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw NotFoundCommentException()
         return foundComment.toResponseDto()
     }
 
@@ -71,7 +73,7 @@ class CommentService(
     }
 
     fun updateComment(commentRequestDto: CommentRequestDto): CommentResponseDto {
-        val foundComment = commentRepository.findByIdOrNull(commentRequestDto.id) ?: throw RuntimeException("존재하지 않는 댓글입니다.")
+        val foundComment = commentRepository.findByIdOrNull(commentRequestDto.id) ?: throw NotFoundCommentException()
 
         foundComment.contents = commentRequestDto.contents
         return foundComment.toResponseDto()

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank
 data class LoginMemberRequestDto(
 
     @field:NotBlank
-    @JsonProperty("loginId")
+    @JsonProperty("email")
     private val _loginId: String?,
 
     @field:NotBlank

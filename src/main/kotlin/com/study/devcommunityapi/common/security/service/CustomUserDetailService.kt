@@ -1,12 +1,12 @@
 package com.study.devcommunityapi.common.security.service
 
+import com.study.devcommunityapi.common.exception.NotFoundMemberException
 import com.study.devcommunityapi.common.util.dto.CustomUser
 import com.study.devcommunityapi.domain.member.entity.Member
 import com.study.devcommunityapi.domain.member.repository.MemberRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -19,7 +19,7 @@ class CustomUserDetailService(
     override fun loadUserByUsername(username: String): UserDetails {
         return memberRepository.findMemberWithRoles(username)
             ?.let { memberToUserDetails(it) }
-            ?: throw UsernameNotFoundException("해당하는 유저를 찾을 수 없습니다.")
+            ?: throw NotFoundMemberException()
     }
 
     private fun memberToUserDetails(member: Member): UserDetails =
