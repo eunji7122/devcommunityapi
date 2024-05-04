@@ -4,6 +4,7 @@ import com.study.devcommunityapi.common.security.filter.JwtAuthenticationFilter
 import com.study.devcommunityapi.common.security.provider.JwtTokenProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -35,6 +36,7 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it.requestMatchers("/api/members/").permitAll()
                 it.requestMatchers("/api/auth/**").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/boards/").permitAll()
                 it.requestMatchers("/api/**").hasAnyRole("USER")
                 it.requestMatchers("/api/").authenticated()
                 it.anyRequest().permitAll()

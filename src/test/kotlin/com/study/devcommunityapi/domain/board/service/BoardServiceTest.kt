@@ -20,7 +20,7 @@ class BoardServiceTest @Autowired constructor(
     @DisplayName("보드 생성")
     fun createBoard() {
 
-        val boardDto = BoardRequestDto(null, "board_test_2", true)
+        val boardDto = BoardRequestDto(null, "board_test_2", "", true)
         val createdBoard = boardService.createBoard(boardDto)
 
         Assertions.assertThat(createdBoard!!.name).isEqualTo("board_test_2")
@@ -33,7 +33,7 @@ class BoardServiceTest @Autowired constructor(
     @DisplayName("보드 조회")
     fun getBoard() {
 
-        val boardDto = BoardRequestDto(null, "board_test", true)
+        val boardDto = BoardRequestDto(null, "board_test", "", true)
         val createdBoard = boardService.createBoard(boardDto)
 
         val foundBoard = boardService.getBoard(createdBoard!!.id)
@@ -57,12 +57,12 @@ class BoardServiceTest @Autowired constructor(
     @DisplayName("보드 수정")
     fun updateBoard() {
 
-        val boardDto = BoardRequestDto(null, "board_test", true)
+        val boardDto = BoardRequestDto(null, "board_test", "", true)
         val createdBoard = boardService.createBoard(boardDto)
 
         val updatedBoard = boardService.updateBoard(
             createdBoard!!.id,
-            BoardRequestDto(createdBoard.id, "board_update_test", false)
+            BoardRequestDto(createdBoard.id, "board_update_test", "", false)
         )
 
         Assertions.assertThat(updatedBoard!!.name).isEqualTo("board_update_test")

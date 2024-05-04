@@ -16,8 +16,11 @@ class Board (
     var name: String,
 
     @Column(nullable = false)
+    var path: String,
+
+    @Column(nullable = false)
     var usingStatus: Boolean
 ): BaseEntity() {
 
-    fun toResponseDto(): BoardResponseDto = BoardResponseDto(id!!, name, usingStatus)
+    fun toResponseDto(): BoardResponseDto = BoardResponseDto(id!!, name, path, usingStatus)
 }

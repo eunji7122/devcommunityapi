@@ -29,20 +29,19 @@ class BoardService(
     }
 
     fun getAllBoards() : List<BoardResponseDto>? {
-        return boardRepository.findAll().stream().map { it.toResponseDto() }.toList()
+        return boardRepository.findAllByOrderByCreatedAt().stream().map { it.toResponseDto() }.toList()
     }
 
     fun updateBoard(id: Long, boardRequestDto: BoardRequestDto) : BoardResponseDto? {
-        val foundBoard = boardRepository.findByIdOrNull(id)
+        val foundBoard = boardRepository.findByIdOrNull(id) ?: throw NotFoundBoardException()
 
-        if (foundBoard != null) {
-            foundBoard.name = boardRequestDto.name
-            foundBoard.usingStatus = boardRequestDto.usingStatus
-            boardRepository.save(foundBoard)
-            return foundBoard.toResponseDto()
-        }
+        foundBoard.name = boardRequestDto.name
+        foundBoard.path = boardRequestDto.path
+        foundBoard.usingStatus = boardRequestDto.usingStatus
 
-        return null
+        boardRepository.save(foundBoard)
+
+        return foundBoard.toResponseDto()
     }
 
     fun deleteBoard(id: Long) {

@@ -12,13 +12,13 @@ class BoardController(
     private val boardService: BoardService
 ) {
 
-    @GetMapping("/list")
+    @GetMapping("/")
     fun getAllBoards(): BaseResponseDto<List<BoardResponseDto>> {
         val boards = boardService.getAllBoards()
         return BaseResponseDto(data = boards)
     }
 
-    @PostMapping()
+    @PostMapping("/")
     fun createBoard(@RequestBody boardRequestDto: BoardRequestDto): BaseResponseDto<BoardResponseDto> {
         val createdBoard = boardService.createBoard(boardRequestDto)
         return BaseResponseDto(data = createdBoard)

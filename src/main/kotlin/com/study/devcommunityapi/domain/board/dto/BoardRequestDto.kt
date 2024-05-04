@@ -13,6 +13,10 @@ data class BoardRequestDto(
     private val _name: String?,
 
     @field:NotBlank
+    @JsonProperty("path")
+    private val _path: String?,
+
+    @field:NotBlank
     @JsonProperty("usingStatus")
     private val _usingStatus: Boolean?,
 
@@ -21,9 +25,12 @@ data class BoardRequestDto(
     val name: String
         get() = _name!!
 
+    val path: String
+        get() = _path!!
+
     val usingStatus: Boolean
         get() = _usingStatus!!
 
-    fun toEntity(): Board = Board(id, name, usingStatus)
+    fun toEntity(): Board = Board(id, name, path, usingStatus)
 
 }
