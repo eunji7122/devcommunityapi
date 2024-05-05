@@ -1,7 +1,6 @@
 package com.study.devcommunityapi.domain.post.controller
 
 import com.study.devcommunityapi.common.util.dto.BaseResponseDto
-import com.study.devcommunityapi.common.util.dto.PageResponseDto
 import com.study.devcommunityapi.domain.post.dto.PostRequestDto
 import com.study.devcommunityapi.domain.post.dto.PostResponseDto
 import com.study.devcommunityapi.domain.post.service.PostService
@@ -17,18 +16,6 @@ class PostController(
         val post = postService.getPost(id)
         return BaseResponseDto(data = post)
     }
-
-    @GetMapping("/")
-    fun getPostsByPageRequest(@RequestBody postRequestDto: PostRequestDto): BaseResponseDto<PageResponseDto<PostResponseDto>> {
-        val posts = postService.getPostsByPageRequest(postRequestDto)
-        return BaseResponseDto(posts)
-    }
-
-//    @GetMapping("/")
-//    fun getAllPostsByBoardId(@RequestBody postRequestDto: PostRequestDto): BaseResponseDto<List<PostResponseDto>> {
-//        val posts = postService.getAllPostsByBoardId(postRequestDto)
-//        return BaseResponseDto(data = posts)
-//    }
 
     @PostMapping("/")
     fun createPost(@RequestBody postRequestDto: PostRequestDto): BaseResponseDto<PostResponseDto> {

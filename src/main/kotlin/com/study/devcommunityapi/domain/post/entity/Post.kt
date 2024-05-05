@@ -37,6 +37,6 @@ class Post (
     @Column(nullable = true)
     val deletedAt: LocalDateTime? = null
 
-    fun toResponseDto(): PostResponseDto = PostResponseDto(id!!, title, content, board.toResponseDto(), member.toResponseDto(), viewCount)
+    fun toResponseDto(): PostResponseDto = PostResponseDto(id!!, title, content, board.toResponseDto(), member.toResponseDto(), viewCount, createdAt, updatedAt)
 
 }

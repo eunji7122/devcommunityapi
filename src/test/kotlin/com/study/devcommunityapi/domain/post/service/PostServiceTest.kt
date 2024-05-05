@@ -35,10 +35,10 @@ class PostServiceTest @Autowired constructor(
     fun createPost() {
 //        for (i: Int in 1..20) {
 //            if (i % 2 == 0) {
-//                val postDto = PostRequestDto(null, "post_title_$i", "post_content_$i", 1, 1, 0, PageRequestDto(1, 10))
+//                val postDto = PostRequestDto(null, "post_title_$i", "post_content_$i", 1, 1, 0)
 //                postService.createPost(postDto)
 //            } else {
-//                val postDto = PostRequestDto(null, "post_title_$i", "post_content_$i", 3, 1, 0, PageRequestDto(1, 10))
+//                val postDto = PostRequestDto(null, "post_title_$i", "post_content_$i", 2, 1, 0)
 //                postService.createPost(postDto)
 //            }
 //        }
@@ -49,8 +49,7 @@ class PostServiceTest @Autowired constructor(
             "post_content_1",
             1,
             35,
-            0,
-            null
+            0
         )
         val createdPost = postService.createPost(postDto)
 
@@ -71,8 +70,7 @@ class PostServiceTest @Autowired constructor(
             "post_content_1",
             1,
             1,
-            0,
-            PageRequestDto(1, 10))
+            0)
         val createdPost = postService.createPost(postDto)
 
         val foundPost = postService.getPost(createdPost!!.id)
@@ -95,8 +93,7 @@ class PostServiceTest @Autowired constructor(
             "post_content_1",
             1,
             1,
-            0,
-            null)
+            0)
         val foundPosts = postService.getAllPostsByBoardId(postDto)
 
         Assertions.assertThat(foundPosts!!.size).isEqualTo(0)
@@ -114,8 +111,7 @@ class PostServiceTest @Autowired constructor(
             "post_content_1",
             1,
             0,
-            0,
-            null)
+            0)
         val createdPost = postService.createPost(postDto)
 
         val foundPost = postService.getPost(createdPost!!.id)
@@ -128,8 +124,7 @@ class PostServiceTest @Autowired constructor(
                 "post_content_2",
                 1,
                 1,
-                0,
-                null)
+                0)
         )
 
         Assertions.assertThat(updatedPost!!.title).isEqualTo("post_title_2")
@@ -140,17 +135,19 @@ class PostServiceTest @Autowired constructor(
 
     @Test
     @DisplayName("게시글 목록 조회")
-    fun getPostsByPageRequest() {
+    fun getPostsByBoardId() {
         val postDto = PostRequestDto(
             null,
             null,
             null,
             1,
             0,
-            0,
-            null
+            0
         )
-        val foundPosts = postService.getPostsByPageRequest(postDto)
+
+        val pageRequestDto = PageRequestDto(1, 10)
+
+        val foundPosts = postService.getPostsByBoardId(postDto.boardId, pageRequestDto)
 
         Assertions.assertThat(foundPosts!!.size).isEqualTo(10)
 

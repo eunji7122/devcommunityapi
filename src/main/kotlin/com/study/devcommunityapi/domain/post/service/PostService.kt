@@ -3,6 +3,7 @@ package com.study.devcommunityapi.domain.post.service
 import com.study.devcommunityapi.common.exception.NotFoundMemberException
 import com.study.devcommunityapi.common.exception.NotFoundPostException
 import com.study.devcommunityapi.common.util.dto.CustomUser
+import com.study.devcommunityapi.common.util.dto.PageRequestDto
 import com.study.devcommunityapi.common.util.dto.PageResponseDto
 import com.study.devcommunityapi.domain.board.service.BoardService
 import com.study.devcommunityapi.domain.member.service.MemberService
@@ -71,14 +72,14 @@ class PostService(
         }
     }
 
-    fun getPostsByPageRequest(postRequestDto: PostRequestDto): PageResponseDto<PostResponseDto>? {
+    fun getPostsByBoardId(boardId: Long, pageRequestDto: PageRequestDto): PageResponseDto<PostResponseDto>? {
         val pageable: Pageable = PageRequest.of(
-            postRequestDto.pageRequestDto.page - 1,
-            postRequestDto.pageRequestDto.size,
+            pageRequestDto.page - 1,
+            pageRequestDto.size,
             Sort.by("id").descending()
         )
 
-        val posts: Page<Post> = postRepository.findAllByBoardId(postRequestDto.boardId, pageable)
+        val posts: Page<Post> = postRepository.findAllByBoardId(boardId, pageable)
 
         val dtoList: List<PostResponseDto> = posts.get().map { it.toResponseDto() }.toList()
 
