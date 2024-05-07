@@ -36,6 +36,7 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it.requestMatchers("/api/members/").permitAll()
                 it.requestMatchers("/api/auth/**").permitAll()
+                it.requestMatchers("/api/social/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 it.requestMatchers("/api/**").hasAnyRole("USER")
@@ -43,6 +44,7 @@ class SecurityConfig(
                 it.anyRequest().permitAll()
             }
             .addFilterBefore(JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter::class.java)
+            .oauth2Login {  }
 
         return http.build()
     }
