@@ -22,7 +22,7 @@ class CommentServiceTest @Autowired constructor(
 
     @BeforeEach
     fun setLoginMember() {
-        val token = authService.signIn(LoginMemberRequestDto("user1@test.com", "password"))
+        val token = authService.signIn(LoginMemberRequestDto("user2@test.com", "password1234!"))
         val authentication = jwtTokenProvider.getAuthentication(token.accessToken)
         SecurityContextHolder.getContext().authentication = authentication
     }
@@ -34,10 +34,10 @@ class CommentServiceTest @Autowired constructor(
         {
             val commentDto = CommentRequestDto(
                 null,
-                "sub comment content $i",
+                "comment content $i",
                 1,
-                1,
-                11
+                2,
+                1
             )
 
             commentService.createComment(commentDto)
@@ -89,4 +89,22 @@ class CommentServiceTest @Autowired constructor(
         Assertions.assertThat(deletedComment!!.deletedAt).isNotNull()
     }
 
+    @Test
+    @DisplayName("댓글 좋아요 등록")
+    fun saveCommentHeart() {
+        val commentId = 2L
+        commentService.saveCommentHeart(commentId)
+        val foundComment = commentService.getComment(commentId)
+
+        Assertions.assertThat(foundComment!!.heartCount).isEqualTo(2)
+    }
+
+    @Test
+    @DisplayName("댓글 좋아요 취소")
+    fun deleteCommentHeart() {
+        val commentId = 1L
+        commentService.deleteCommentHeart(commentId)
+        val foundComment = commentService.getComment(commentId)
+        Assertions.assertThat(foundComment!!.heartCount).isEqualTo(0)
+    }
 }

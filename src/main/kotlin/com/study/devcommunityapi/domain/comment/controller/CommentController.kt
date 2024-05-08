@@ -41,4 +41,16 @@ class CommentController(
         commentService.deleteComment(commentId)
     }
 
+    @PostMapping("/comments/{commentId}/heart")
+    fun saveCommentHeart(@PathVariable commentId: Long): BaseResponseDto<Any> {
+        commentService.saveCommentHeart(commentId)
+        return BaseResponseDto()
+    }
+
+    @DeleteMapping("/comments/{commentId}/heart")
+    fun deleteCommentHeart(@PathVariable commentId: Long): BaseResponseDto<Any> {
+        commentService.deleteCommentHeart(commentId)
+        return BaseResponseDto()
+    }
+
 }

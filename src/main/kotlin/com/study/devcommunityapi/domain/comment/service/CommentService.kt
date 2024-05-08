@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service
 class CommentService(
     private val commentRepository: CommentRepository,
     private val commentHierarchyService: CommentHierarchyService,
+    private val commentHeartService: CommentHeartService,
     private val memberService: MemberService,
     private val postService: PostService,
 ) {
@@ -54,7 +55,10 @@ class CommentService(
 //            }.toList())
 //        }.toList()
 
-        return commentRepository.findAllByPostId(postId).stream().map { it.toResponseDto() }.toList()
+        return commentRepository.findAllByPostId(postId).stream().map {
+            val heartCount = commentHeartService.getHeartCountByComment(it.id!!)
+            it.toResponseDto(heartCount)
+        }.toList()
     }
 
     fun getComment(commentId: Long): CommentResponseDto? {
@@ -65,7 +69,8 @@ class CommentService(
 //        }.toList())
 
         val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw NotFoundCommentException()
-        return foundComment.toResponseDto()
+        val heartCount = commentHeartService.getHeartCountByComment(foundComment.id!!)
+        return foundComment.toResponseDto(heartCount)
     }
 
     fun getCommentWithDescendant(commentId: Long): List<CommentResponseDto>? {
@@ -81,5 +86,22 @@ class CommentService(
 
     fun deleteComment(commentId: Long) {
         commentRepository.deleteById(commentId)
+    }
+
+    fun saveCommentHeart(commentId: Long) {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundMemberException()
+        val foundMember = memberService.findMemberByEmail(username)
+        val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw NotFoundCommentException()
+
+        commentHeartService.saveCommentHeart(foundComment, foundMember)
+    }
+
+    fun deleteCommentHeart(commentId: Long) {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundMemberException()
+        val foundMember = memberService.findMemberByEmail(username)
+
+        commentHeartService.deleteCommentHeart(commentId, foundMember.id!!)
     }
 }

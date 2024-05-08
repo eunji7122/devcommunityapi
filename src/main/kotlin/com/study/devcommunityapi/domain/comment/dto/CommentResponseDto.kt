@@ -7,5 +7,6 @@ data class CommentResponseDto(
     val id: Long,
     val contents: String,
     val member: MemberSummaryResponseDto,
+    val heartCount: Int,
     val deletedAt: LocalDateTime?
 )
