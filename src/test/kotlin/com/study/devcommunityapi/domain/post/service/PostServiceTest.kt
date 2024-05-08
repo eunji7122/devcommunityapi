@@ -23,14 +23,13 @@ class PostServiceTest @Autowired constructor(
 
     @BeforeEach
     fun setLoginMember() {
-        val token = authService.signIn(LoginMemberRequestDto("user1@test.com", "password"))
+        val token = authService.signIn(LoginMemberRequestDto("user2@test.com", "password1234!"))
         val authentication = jwtTokenProvider.getAuthentication(token.accessToken)
         SecurityContextHolder.getContext().authentication = authentication
     }
 
 
     @Test
-    @Transactional
     @DisplayName("게시글 생성")
     fun createPost() {
 //        for (i: Int in 1..20) {
@@ -48,7 +47,6 @@ class PostServiceTest @Autowired constructor(
             "post_title_1",
             "post_content_1",
             1,
-            35,
             0
         )
         val createdPost = postService.createPost(postDto)
@@ -69,8 +67,8 @@ class PostServiceTest @Autowired constructor(
             "post_title_1",
             "post_content_1",
             1,
-            1,
-            0)
+            0
+            )
         val createdPost = postService.createPost(postDto)
 
         val foundPost = postService.getPost(createdPost!!.id)
@@ -83,20 +81,21 @@ class PostServiceTest @Autowired constructor(
     }
 
     @Test
-    @Transactional
     @DisplayName("게시글 목록 조회")
-    fun getAllPostsByBoardId() {
-
+    fun getPostsByBoardId() {
         val postDto = PostRequestDto(
             null,
-            "post_title_1",
-            "post_content_1",
+            null,
+            null,
             1,
-            1,
-            0)
-        val foundPosts = postService.getAllPostsByBoardId(postDto)
+            0
+        )
 
-        Assertions.assertThat(foundPosts!!.size).isEqualTo(0)
+        val pageRequestDto = PageRequestDto(1, 10)
+
+        val foundPosts = postService.getPostsByBoardId(postDto.boardId, pageRequestDto)
+
+        Assertions.assertThat(foundPosts!!.size).isEqualTo(10)
 
     }
 
@@ -110,8 +109,8 @@ class PostServiceTest @Autowired constructor(
             "post_title_1",
             "post_content_1",
             1,
-            0,
-            0)
+            0
+        )
         val createdPost = postService.createPost(postDto)
 
         val foundPost = postService.getPost(createdPost!!.id)
@@ -123,33 +122,37 @@ class PostServiceTest @Autowired constructor(
                 "post_title_2",
                 "post_content_2",
                 1,
-                1,
-                0)
+                0
+            )
         )
 
         Assertions.assertThat(updatedPost!!.title).isEqualTo("post_title_2")
         Assertions.assertThat(updatedPost.content).isEqualTo("post_content_2")
-
     }
 
+    @Test
+    @DisplayName("게시글 좋아요 등록")
+    fun savePostHeart() {
+
+//        val postDto = PostRequestDto(
+//            null,
+//            "post_title_1",
+//            "post_content_1",
+//            1,
+//            0
+//        )
+//        val createdPost = postService.createPost(postDto)
+        postService.savePostHeart(3)
+        val foundPost = postService.getPost(3)
+
+        Assertions.assertThat(foundPost!!.heartCount).isEqualTo(2)
+    }
 
     @Test
-    @DisplayName("게시글 목록 조회")
-    fun getPostsByBoardId() {
-        val postDto = PostRequestDto(
-            null,
-            null,
-            null,
-            1,
-            0,
-            0
-        )
-
-        val pageRequestDto = PageRequestDto(1, 10)
-
-        val foundPosts = postService.getPostsByBoardId(postDto.boardId, pageRequestDto)
-
-        Assertions.assertThat(foundPosts!!.size).isEqualTo(10)
-
+    @DisplayName("게시글 좋아요 취소")
+    fun deletePostHeart() {
+        postService.deletePostHeart(3)
+        val foundPost = postService.getPost(3)
+        Assertions.assertThat(foundPost!!.heartCount).isEqualTo(1)
     }
 }

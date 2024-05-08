@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/posts")
 class PostController(
-    private val postService: PostService
+    private val postService: PostService,
 ) {
     @GetMapping("/{id}")
     fun getPost(@PathVariable id: Long): BaseResponseDto<PostResponseDto>? {
@@ -32,6 +32,18 @@ class PostController(
     @DeleteMapping("/{id}")
     fun deletePost(@PathVariable id: Long) {
         postService.deleteBoard(id)
+    }
+
+    @PostMapping("/{postId}/heart")
+    fun savePostHeart(@PathVariable postId: Long): BaseResponseDto<Any> {
+        postService.savePostHeart(postId)
+        return BaseResponseDto()
+    }
+
+    @DeleteMapping("/{postId}/heart")
+    fun deletePostHeart(@PathVariable postId: Long): BaseResponseDto<Any> {
+        postService.deletePostHeart(postId)
+        return BaseResponseDto()
     }
 
 }

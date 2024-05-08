@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service
 @Transactional
 class PostService(
     private val postRepository: PostRepository,
+    private val postHeartService: PostHeartService,
     private val boardService: BoardService,
     private val memberService: MemberService,
 ) {
@@ -31,24 +32,44 @@ class PostService(
     fun createPost(postRequestDto: PostRequestDto) : PostResponseDto? {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
             ?: throw NotFoundMemberException()
-        val foundBoard = boardService.getBoardEntity(postRequestDto.boardId)
         val foundMember = memberService.findMemberByEmail(username)
-        return postRepository.save(postRequestDto.toEntity(foundBoard, foundMember)).toResponseDto()
+        val foundBoard = boardService.getBoardEntity(postRequestDto.boardId)
+
+        val createdPost = postRepository.save(postRequestDto.toEntity(foundBoard, foundMember))
+        return createdPost.toResponseDto()
     }
 
-    fun getPost(id: Long) : PostResponseDto? {
-        val foundPost = postRepository.findByIdOrNull(id) ?: throw NotFoundPostException()
-        return foundPost.toResponseDto()
+    fun getPost(postId: Long) : PostResponseDto? {
+        val foundPost = postRepository.findByIdOrNull(postId) ?: throw NotFoundPostException()
+        val heartCount = postHeartService.getHeartCountByPost(postId)
+        return foundPost.toResponseDto(heartCount)
     }
 
     fun getPostEntity(id: Long): Post {
         return postRepository.findByIdOrNull(id) ?: throw NotFoundPostException()
     }
 
-    fun getAllPostsByBoardId(postRequestDto: PostRequestDto) : List<PostResponseDto>? {
-        return postRepository.findAllByBoardId(postRequestDto.boardId).stream().map {
-            it.toResponseDto()
+    fun getPostsByBoardId(boardId: Long, pageRequestDto: PageRequestDto): PageResponseDto<PostResponseDto>? {
+        val pageable: Pageable = PageRequest.of(
+            pageRequestDto.page - 1,
+            pageRequestDto.size,
+            Sort.by("id").descending()
+        )
+
+        val posts: Page<Post> = postRepository.findAllByBoardId(boardId, pageable)
+
+        val dtoList: List<PostResponseDto> = posts.get().map {
+            val viewCount = postHeartService.getHeartCountByPost(it.id!!)
+            it.toResponseDto(viewCount)
         }.toList()
+
+        return PageResponseDto(
+            dtoList,
+            posts.pageable.pageNumber + 1,
+            posts.pageable.pageSize,
+            posts.totalElements,
+            posts.totalPages
+        )
     }
 
     fun updatePost(id: Long, postRequestDto: PostRequestDto) : PostResponseDto? {
@@ -72,24 +93,20 @@ class PostService(
         }
     }
 
-    fun getPostsByBoardId(boardId: Long, pageRequestDto: PageRequestDto): PageResponseDto<PostResponseDto>? {
-        val pageable: Pageable = PageRequest.of(
-            pageRequestDto.page - 1,
-            pageRequestDto.size,
-            Sort.by("id").descending()
-        )
+    fun savePostHeart(postId: Long) {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundMemberException()
+        val foundMember = memberService.findMemberByEmail(username)
+        val foundPost = postRepository.findByIdOrNull(postId) ?: throw NotFoundPostException()
 
-        val posts: Page<Post> = postRepository.findAllByBoardId(boardId, pageable)
+        postHeartService.savePostHeart(foundPost, foundMember)
+    }
 
-        val dtoList: List<PostResponseDto> = posts.get().map { it.toResponseDto() }.toList()
-
-        return PageResponseDto(
-            dtoList,
-            posts.pageable.pageNumber + 1,
-            posts.pageable.pageSize,
-            posts.totalElements,
-            posts.totalPages
-        )
+    fun deletePostHeart(postId: Long) {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundMemberException()
+        val foundMember = memberService.findMemberByEmail(username)
+        postHeartService.deletePostHeart(postId, foundMember.id!!)
     }
 
 }

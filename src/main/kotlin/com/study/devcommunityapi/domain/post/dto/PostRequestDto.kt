@@ -23,10 +23,6 @@ data class PostRequestDto(
     private val _boardId: Long?,
 
     @field:NotBlank
-    @JsonProperty("memberId")
-    private val _memberId: Long?,
-
-    @field:NotBlank
     @JsonProperty("viewCount")
     private val _viewCount: Int?,
 
@@ -39,9 +35,6 @@ data class PostRequestDto(
 
     val boardId: Long
         get() = _boardId!!
-
-    val memberId: Long
-        get() = _memberId!!
 
     val viewCount: Int
         get() = _viewCount!!
