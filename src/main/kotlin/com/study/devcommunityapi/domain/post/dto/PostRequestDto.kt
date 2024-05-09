@@ -26,6 +26,9 @@ data class PostRequestDto(
     @JsonProperty("viewCount")
     private val _viewCount: Int?,
 
+    @JsonProperty("tags")
+    private val _tags: String?,
+
 ) {
     val title: String
         get() = _title!!
@@ -38,6 +41,9 @@ data class PostRequestDto(
 
     val viewCount: Int
         get() = _viewCount!!
+
+    val tags: String
+        get() = _tags!!
 
 
     fun toEntity(board: Board, member: Member): Post = Post(id, title, content, board, member, viewCount)

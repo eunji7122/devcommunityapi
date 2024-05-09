@@ -39,6 +39,7 @@ class SecurityConfig(
                 it.requestMatchers("/api/social/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
+                it.requestMatchers(HttpMethod.GET, "/api/tags/**").permitAll()
                 it.requestMatchers("/api/**").hasAnyRole("USER")
                 it.requestMatchers("/api/").authenticated()
                 it.anyRequest().permitAll()

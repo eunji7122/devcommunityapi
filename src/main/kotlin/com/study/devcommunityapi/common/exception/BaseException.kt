@@ -14,6 +14,7 @@ class BadCredentialsException: BaseException(400, HttpStatus.BAD_REQUEST, "아�
 class UnauthorizedException: BaseException(401, HttpStatus.UNAUTHORIZED, "인증 권한이 없습니다")
 class JwtExpiredException: BaseException(403, HttpStatus.FORBIDDEN, "토큰이 만료되었습니다. 다시 로그인 하세요")
 class JwtMalformedException: BaseException(403, HttpStatus.FORBIDDEN, "잘못된 형식의 토큰입니다.")
+class NotFoundAuthenticMemberException: BaseException(404, HttpStatus.NOT_FOUND, "로그인 정보를 찾을 수 없습니다.")
 class NotFoundMemberException: BaseException(404, HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다.")
 class NotFoundBoardException: BaseException(404, HttpStatus.NOT_FOUND, "존재하지 않는 게시판입니다.")
 class NotFoundPostException: BaseException(404, HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다.")

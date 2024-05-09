@@ -12,6 +12,7 @@ data class PostResponseDto(
     val member: MemberSummaryResponseDto,
     val viewCount: Int,
     val heartCount: Int,
+    val tags: List<String>?,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 )

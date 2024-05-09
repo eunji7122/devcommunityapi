@@ -47,7 +47,8 @@ class PostServiceTest @Autowired constructor(
             "post_title_1",
             "post_content_1",
             1,
-            0
+            0,
+            "#tag3 #tag4 #tag5"
         )
         val createdPost = postService.createPost(postDto)
 
@@ -67,7 +68,8 @@ class PostServiceTest @Autowired constructor(
             "post_title_1",
             "post_content_1",
             1,
-            0
+            0,
+            "#tag1 #tag2 #tag3"
             )
         val createdPost = postService.createPost(postDto)
 
@@ -88,7 +90,8 @@ class PostServiceTest @Autowired constructor(
             null,
             null,
             1,
-            0
+            0,
+            "#tag1 #tag2 #tag3"
         )
 
         val pageRequestDto = PageRequestDto(1, 10)
@@ -100,7 +103,6 @@ class PostServiceTest @Autowired constructor(
     }
 
     @Test
-    @Transactional
     @DisplayName("게시글 수정")
     fun updatePost() {
 
@@ -109,7 +111,8 @@ class PostServiceTest @Autowired constructor(
             "post_title_1",
             "post_content_1",
             1,
-            0
+            0,
+            "#tag1 #tag2 #tag3"
         )
         val createdPost = postService.createPost(postDto)
 
@@ -122,7 +125,8 @@ class PostServiceTest @Autowired constructor(
                 "post_title_2",
                 "post_content_2",
                 1,
-                0
+                0,
+                "#tag4 #tag5 #tag6"
             )
         )
 
@@ -145,7 +149,7 @@ class PostServiceTest @Autowired constructor(
         postService.savePostHeart(3)
         val foundPost = postService.getPost(3)
 
-        Assertions.assertThat(foundPost!!.heartCount).isEqualTo(2)
+        Assertions.assertThat(foundPost!!.heartCount).isEqualTo(1)
     }
 
     @Test

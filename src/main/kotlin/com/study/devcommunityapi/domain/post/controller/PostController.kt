@@ -31,7 +31,7 @@ class PostController(
 
     @DeleteMapping("/{id}")
     fun deletePost(@PathVariable id: Long) {
-        postService.deleteBoard(id)
+        postService.deletePost(id)
     }
 
     @PostMapping("/{postId}/heart")

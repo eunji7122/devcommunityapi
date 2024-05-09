@@ -1,6 +1,6 @@
 package com.study.devcommunityapi.domain.post.service
 
-import com.study.devcommunityapi.common.exception.NotFoundMemberException
+import com.study.devcommunityapi.common.exception.NotFoundAuthenticMemberException
 import com.study.devcommunityapi.common.exception.NotFoundPostException
 import com.study.devcommunityapi.common.util.dto.CustomUser
 import com.study.devcommunityapi.common.util.dto.PageRequestDto
@@ -25,24 +25,31 @@ import org.springframework.stereotype.Service
 class PostService(
     private val postRepository: PostRepository,
     private val postHeartService: PostHeartService,
+    private val tagService: TagService,
+    private val postTagMapService: PostTagMapService,
     private val boardService: BoardService,
     private val memberService: MemberService,
 ) {
 
     fun createPost(postRequestDto: PostRequestDto) : PostResponseDto? {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
-            ?: throw NotFoundMemberException()
+            ?: throw NotFoundAuthenticMemberException()
         val foundMember = memberService.findMemberByEmail(username)
         val foundBoard = boardService.getBoardEntity(postRequestDto.boardId)
 
         val createdPost = postRepository.save(postRequestDto.toEntity(foundBoard, foundMember))
-        return createdPost.toResponseDto()
+
+        val tags = tagService.convertToNameListFromTagString(postRequestDto.tags, createdPost.id!!)
+        createTags(tags, createdPost)
+
+        return createdPost.toResponseDto(tags = tags)
     }
 
     fun getPost(postId: Long) : PostResponseDto? {
         val foundPost = postRepository.findByIdOrNull(postId) ?: throw NotFoundPostException()
         val heartCount = postHeartService.getHeartCountByPost(postId)
-        return foundPost.toResponseDto(heartCount)
+        val tags = postTagMapService.getTagsByPost(foundPost.id!!)
+        return foundPost.toResponseDto(heartCount, tagService.convertToNameList(tags!!))
     }
 
     fun getPostEntity(id: Long): Post {
@@ -60,7 +67,8 @@ class PostService(
 
         val dtoList: List<PostResponseDto> = posts.get().map {
             val viewCount = postHeartService.getHeartCountByPost(it.id!!)
-            it.toResponseDto(viewCount)
+            val tags = postTagMapService.getTagsByPost(it.id)
+            it.toResponseDto(viewCount, tagService.convertToNameList(tags!!))
         }.toList()
 
         return PageResponseDto(
@@ -79,23 +87,34 @@ class PostService(
             foundPost.title = postRequestDto.title
             foundPost.content = postRequestDto.content
 
+            val foundTags = postTagMapService.getTagsByPost(postRequestDto.id!!)
+            val newTags = tagService.convertToNameListFromTagString(postRequestDto.tags, postRequestDto.id)
+
+            // 게시글에 등록되어있던 tag 일괄 삭제
+            postTagMapService.deletePostTagMaps(postRequestDto.id, foundTags!!)
+            createTags(newTags, foundPost)
+
             postRepository.save(foundPost)
-            return foundPost.toResponseDto()
+
+            return foundPost.toResponseDto(tags = newTags)
         }
 
         return null
     }
 
-    fun deleteBoard(id: Long) {
-        val foundPost = postRepository.findByIdOrNull(id)
+    fun deletePost(postId: Long) {
+        val foundPost = postRepository.findByIdOrNull(postId)
         if (foundPost != null) {
+            val foundTags = postTagMapService.getTagsByPost(postId)
+            postTagMapService.deletePostTagMaps(postId, foundTags!!)
+
             postRepository.delete(foundPost)
         }
     }
 
     fun savePostHeart(postId: Long) {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
-            ?: throw NotFoundMemberException()
+            ?: throw NotFoundAuthenticMemberException()
         val foundMember = memberService.findMemberByEmail(username)
         val foundPost = postRepository.findByIdOrNull(postId) ?: throw NotFoundPostException()
 
@@ -104,9 +123,28 @@ class PostService(
 
     fun deletePostHeart(postId: Long) {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
-            ?: throw NotFoundMemberException()
+            ?: throw NotFoundAuthenticMemberException()
         val foundMember = memberService.findMemberByEmail(username)
         postHeartService.deletePostHeart(postId, foundMember.id!!)
+    }
+
+    private fun createTags(tags: List<String>, post: Post) {
+        // tag 리스트를 순회하면서 저장 (post 당 tag는 여러개임)
+        for (tag in tags) {
+            // 태그 생성
+            val createdTag = tagService.saveTag(tag)
+
+            if (createdTag != null) {
+                // 새 tag라면 postTagMap에 생성된 새 tag 저장
+                postTagMapService.savePostTagMap(post, createdTag)
+            } else {
+                // 이미 존재하는 tag라면 해당 tag를 찾아서 저장
+                val findTag = tagService.getTag(tag)
+                if (findTag != null) {
+                    postTagMapService.savePostTagMap(post, findTag)
+                }
+            }
+        }
     }
 
 }
