@@ -8,5 +8,6 @@ data class MemberResponseDto(
     val name: String,
     val birthDate: String,
     val gender: String,
+    val point: Int,
     val roleNames: List<MemberRole>
 )

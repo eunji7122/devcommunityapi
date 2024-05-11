@@ -22,6 +22,9 @@ data class CommentRequestDto(
     private val _postId: Long?,
 
     val ancestorCommentId: Long?,
+
+    @JsonProperty("isSelected")
+    private val _isSelected: Boolean? = false,
 ) {
     val contents: String
         get() = _contents!!
@@ -32,5 +35,8 @@ data class CommentRequestDto(
     val postId: Long
         get() = _postId!!
 
-    fun toEntity(member: Member, post: Post): Comment = Comment(id, contents, member, post)
+    val isSelected: Boolean
+        get() = _isSelected!!
+
+    fun toEntity(member: Member, post: Post): Comment = Comment(id, contents, member, post, isSelected)
 }

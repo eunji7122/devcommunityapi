@@ -29,6 +29,12 @@ data class PostRequestDto(
     @JsonProperty("tags")
     private val _tags: String?,
 
+    @JsonProperty("isSelected")
+    private val _isSelected: Boolean? = false,
+
+    @JsonProperty("rewardPoint")
+    private val _rewardPoint: Int? = 0,
+
 ) {
     val title: String
         get() = _title!!
@@ -45,7 +51,13 @@ data class PostRequestDto(
     val tags: String
         get() = _tags!!
 
+    val isSelected: Boolean
+        get() = _isSelected!!
 
-    fun toEntity(board: Board, member: Member): Post = Post(id, title, content, board, member, viewCount)
+    val rewardPoint: Int
+        get() = _rewardPoint!!
+
+
+    fun toEntity(board: Board, member: Member): Post = Post(id, title, content, board, member, viewCount, isSelected, rewardPoint)
 
 }

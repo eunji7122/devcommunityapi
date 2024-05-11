@@ -39,10 +39,17 @@ class PostService(
 
         val createdPost = postRepository.save(postRequestDto.toEntity(foundBoard, foundMember))
 
-        val tags = tagService.convertToNameListFromTagString(postRequestDto.tags, createdPost.id!!)
-        createTags(tags, createdPost)
+        if (postRequestDto.tags != "") {
+            val tags = tagService.convertToNameListFromTagString(postRequestDto.tags, createdPost.id!!)
+            createTags(tags, createdPost)
+            return createdPost.toResponseDto(tags = tags)
+        }
 
-        return createdPost.toResponseDto(tags = tags)
+        return createdPost.toResponseDto()
+    }
+
+    fun savePost(post: Post): Post {
+        return postRepository.save(post)
     }
 
     fun getPost(postId: Long) : PostResponseDto? {

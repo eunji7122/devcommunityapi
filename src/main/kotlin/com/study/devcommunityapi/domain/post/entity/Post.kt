@@ -5,6 +5,7 @@ import com.study.devcommunityapi.domain.board.entity.Board
 import com.study.devcommunityapi.domain.member.entity.Member
 import com.study.devcommunityapi.domain.post.dto.PostResponseDto
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.SQLDelete
 import java.time.LocalDateTime
 
@@ -30,14 +31,22 @@ class Post (
     var member: Member,
 
     @Column(nullable = false)
-    var viewCount: Int
+    var viewCount: Int,
+
+    @Column
+    @ColumnDefault("false")
+    var isSelected: Boolean,
+
+    @Column
+    @ColumnDefault("0")
+    var rewardPoint: Int
 
 ): BaseEntity() {
 
     @Column(nullable = true)
     val deletedAt: LocalDateTime? = null
 
-    fun toResponseDto(heartCount: Int = 0, tags: List<String>?): PostResponseDto
-        = PostResponseDto(id!!, title, content, board.toResponseDto(), member.toSummaryResponseDto(), viewCount, heartCount, tags, createdAt, updatedAt)
+    fun toResponseDto(heartCount: Int = 0, tags: List<String> = arrayListOf()): PostResponseDto
+        = PostResponseDto(id!!, title, content, board.toResponseDto(), member.toSummaryResponseDto(), viewCount, heartCount, tags, isSelected, rewardPoint, createdAt, updatedAt)
 
 }

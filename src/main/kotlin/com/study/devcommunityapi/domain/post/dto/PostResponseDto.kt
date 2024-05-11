@@ -13,6 +13,8 @@ data class PostResponseDto(
     val viewCount: Int,
     val heartCount: Int,
     val tags: List<String>?,
+    val isSelected: Boolean,
+    val rewardPoint: Int,
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime
 )

@@ -53,4 +53,10 @@ class CommentController(
         return BaseResponseDto()
     }
 
+    @PostMapping("/comments/{commentId}/select")
+    fun rewardPoint(@PathVariable commentId: Long, @RequestBody commentRequestDto: CommentRequestDto): BaseResponseDto<Any> {
+        commentService.selectComment(commentRequestDto)
+        return BaseResponseDto()
+    }
+
 }

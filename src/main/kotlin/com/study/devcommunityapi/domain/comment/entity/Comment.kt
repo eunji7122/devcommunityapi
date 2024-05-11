@@ -5,6 +5,7 @@ import com.study.devcommunityapi.domain.comment.dto.CommentResponseDto
 import com.study.devcommunityapi.domain.member.entity.Member
 import com.study.devcommunityapi.domain.post.entity.Post
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.SQLDelete
 import java.time.LocalDateTime
 
@@ -27,6 +28,10 @@ class Comment(
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     val post: Post,
+
+    @Column
+    @ColumnDefault("false")
+    var isSelected: Boolean,
 
 ): BaseEntity() {
 

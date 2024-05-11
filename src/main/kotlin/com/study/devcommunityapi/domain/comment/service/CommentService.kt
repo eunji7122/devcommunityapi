@@ -104,4 +104,36 @@ class CommentService(
 
         commentHeartService.deleteCommentHeart(commentId, foundMember.id!!)
     }
+
+    fun selectComment(commentRequestDto: CommentRequestDto) {
+        // 댓글 채택
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundMemberException()
+        val loginMember = memberService.findMemberByEmail(username)
+
+        val foundComment = commentRepository.findByIdOrNull(commentRequestDto.id) ?: throw NotFoundCommentException()
+        val foundPost = postService.getPostEntity(commentRequestDto.postId)
+
+        if (foundPost.isSelected) {
+            throw RuntimeException("이미 채택된 게시글입니다.")
+        }
+
+        if (loginMember.email != foundPost.member.email) {
+            throw RuntimeException("로그인 회원과 게시글의 글쓴이가 일치하지 않습니다.")
+        }
+
+        if (foundPost.member.point < foundPost.rewardPoint) {
+            throw RuntimeException("지급할 포인트가 보유한 포인트보다 많습니다.")
+        }
+
+        foundPost.member.point -= foundPost.rewardPoint
+        foundComment.member.point += foundPost.rewardPoint
+        foundPost.isSelected = true
+        foundComment.isSelected = true
+
+        postService.savePost(foundPost)
+        commentRepository.save(foundComment)
+        memberService.saveMember(foundPost.member)
+        memberService.saveMember(foundComment.member)
+    }
 }

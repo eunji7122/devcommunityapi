@@ -43,6 +43,9 @@ data class MemberRequestDto(
     @field:ValidEnum(enumClass = Gender::class, message = "MAN 이나 WOMAN 중 하나를 선택해주세요")
     @JsonProperty("gender")
     private val _gender: String?,
+
+    @JsonProperty("point")
+    private val _point: Int? = 0,
 ) {
     val email: String
         get() = _email!!
@@ -59,9 +62,12 @@ data class MemberRequestDto(
     val gender: Gender
         get() = Gender.valueOf(_gender!!)
 
+    val point: Int
+        get() = _point!!
+
     private fun String.toLocalDate(): LocalDate =
         LocalDate.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
     fun toEntity(passwordEncoder: PasswordEncoder): Member =
-        Member(id, email, passwordEncoder.encode(password), name, birthDate, gender, ArrayList())
+        Member(id, email, passwordEncoder.encode(password), name, birthDate, gender, point, ArrayList())
 }

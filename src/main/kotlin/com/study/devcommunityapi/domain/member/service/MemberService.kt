@@ -31,6 +31,10 @@ class MemberService(
         return memberRepository.save(member).toResponseDto()
     }
 
+    fun saveMember(member: Member): Member {
+        return memberRepository.save(member)
+    }
+
     fun findMemberWithRoles(email: String): MemberResponseDto {
         val foundMember = memberRepository.findMemberWithRoles(email)
             ?: throw NotFoundMemberException()

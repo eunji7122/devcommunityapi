@@ -35,6 +35,9 @@ class Member(
     @Enumerated(EnumType.STRING)
     var gender: Gender,
 
+    @Column(nullable = false)
+    var point: Int,
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "member_role", joinColumns = [JoinColumn(name = "id")])
     var memberRoleList: MutableList<MemberRole> = ArrayList()
@@ -59,6 +62,7 @@ class Member(
             name,
             birthDate.formatDate(),
             gender.desc,
+            point,
             memberRoleList
         )
 
