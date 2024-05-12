@@ -9,7 +9,7 @@ import com.study.devcommunityapi.domain.board.service.BoardService
 import com.study.devcommunityapi.domain.member.service.MemberService
 import com.study.devcommunityapi.domain.post.dto.PostRequestDto
 import com.study.devcommunityapi.domain.post.dto.PostResponseDto
-import com.study.devcommunityapi.domain.post.entity.Post
+import com.study.devcommunityapi.domain.post.entity.*
 import com.study.devcommunityapi.domain.post.repository.PostRepository
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
@@ -63,19 +63,32 @@ class PostService(
         return postRepository.findByIdOrNull(id) ?: throw NotFoundPostException()
     }
 
-    fun getPostsByBoardId(boardId: Long, pageRequestDto: PageRequestDto): PageResponseDto<PostResponseDto>? {
+    fun getPostsByBoardId(boardId: Long, pageRequestDto: PageRequestDto): PageResponseDto<PostResponseDto> {
         val pageable: Pageable = PageRequest.of(
             pageRequestDto.page - 1,
             pageRequestDto.size,
-            Sort.by("id").descending()
+            Sort.by(pageRequestDto.orderCriteria).descending()
         )
 
-        val posts: Page<Post> = postRepository.findAllByBoardId(boardId, pageable)
+        val posts: Page<PostWithHeartCount> = when (pageRequestDto.orderCriteria) {
+            "viewCount" -> {
+                postRepository.findAllByBoardIdWithHeartCountOrderByViews(boardId, pageable)
+            }
+            "heartCount" -> {
+                postRepository.findAllByBoardIdWithHeartCountOrderByHeartCount(boardId, pageable)
+            }
+            else -> {
+                postRepository.findAllByBoardIdWithHeartCountOrderByNewest(boardId, pageable)
+            }
+        }
 
-        val dtoList: List<PostResponseDto> = posts.get().map {
-            val viewCount = postHeartService.getHeartCountByPost(it.id!!)
-            val tags = postTagMapService.getTagsByPost(it.id)
-            it.toResponseDto(viewCount, tagService.convertToNameList(tags!!))
+        val postIdList: List<Long> = posts.get().map { it.toPostIdDto() }.toList()
+
+        val tagList: List<PostTagMap> = postTagMapService.getAllByPostIdList(postIdList)
+
+        val dtoList: List<PostResponseDto> = posts.get().map { item ->
+            val tags = tagList.filter { subItem -> subItem.post.id == item.post.id }.map { it.tag.name }
+            item.toResponseDto(tags)
         }.toList()
 
         return PageResponseDto(

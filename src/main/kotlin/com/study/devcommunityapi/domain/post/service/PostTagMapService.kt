@@ -35,4 +35,8 @@ class PostTagMapService (
         return postTagMapRepository.findTagsByGroupByTagId()
     }
 
+    fun getAllByPostIdList(postIdList: List<Long>): List<PostTagMap> {
+        return postTagMapRepository.findByPostIdList(postIdList)
+    }
+
 }
