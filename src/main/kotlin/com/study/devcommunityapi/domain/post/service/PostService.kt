@@ -56,6 +56,7 @@ class PostService(
         val foundPost = postRepository.findByIdOrNull(postId) ?: throw NotFoundPostException()
         val heartCount = postHeartService.getHeartCountByPost(postId)
         val tags = postTagMapService.getTagsByPost(foundPost.id!!)
+        increaseViewCount(foundPost)
         return foundPost.toResponseDto(heartCount, tagService.convertToNameList(tags!!))
     }
 
@@ -107,11 +108,11 @@ class PostService(
             foundPost.title = postRequestDto.title
             foundPost.content = postRequestDto.content
 
-            val foundTags = postTagMapService.getTagsByPost(postRequestDto.id!!)
-            val newTags = tagService.convertToNameListFromTagString(postRequestDto.tags, postRequestDto.id)
+            val foundTags = postTagMapService.getTagsByPost(foundPost.id!!)
+            val newTags = tagService.convertToNameListFromTagString(postRequestDto.tags, foundPost.id)
 
             // 게시글에 등록되어있던 tag 일괄 삭제
-            postTagMapService.deletePostTagMaps(postRequestDto.id, foundTags!!)
+            postTagMapService.deletePostTagMaps(foundPost.id, foundTags!!)
             createTags(newTags, foundPost)
 
             postRepository.save(foundPost)
@@ -146,6 +147,12 @@ class PostService(
             ?: throw NotFoundAuthenticMemberException()
         val foundMember = memberService.findMemberByEmail(username)
         postHeartService.deletePostHeart(postId, foundMember.id!!)
+    }
+
+    fun increaseViewCount(post: Post): Post {
+        // 조회수 증가
+        post.viewCount += 1
+        return postRepository.save(post)
     }
 
     private fun createTags(tags: List<String>, post: Post) {
