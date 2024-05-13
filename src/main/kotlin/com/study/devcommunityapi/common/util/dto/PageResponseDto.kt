@@ -5,5 +5,6 @@ data class PageResponseDto<E>(
     val page: Int,
     val size: Int,
     val totalElements: Long,
-    val totalPages: Int
+    val totalPages: Int,
+    val searchKeyword: String
 )

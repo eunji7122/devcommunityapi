@@ -73,13 +73,23 @@ class PostService(
 
         val posts: Page<PostWithHeartCount> = when (pageRequestDto.orderCriteria) {
             "viewCount" -> {
-                postRepository.findAllByBoardIdWithHeartCountOrderByViews(boardId, pageable)
+                if (pageRequestDto.searchKeyword.isEmpty())
+                    postRepository.findAllByBoardIdWithHeartCountOrderByViews(boardId, pageable)
+                else
+                    postRepository.findAllByBoardIdWithHeartCountOrderByViews(boardId, pageRequestDto.searchKeyword, pageable)
             }
             "heartCount" -> {
-                postRepository.findAllByBoardIdWithHeartCountOrderByHeartCount(boardId, pageable)
+                if (pageRequestDto.searchKeyword.isEmpty())
+                    postRepository.findAllByBoardIdWithHeartCountOrderByHeartCount(boardId, pageable)
+                else
+                    postRepository.findAllByBoardIdWithHeartCountOrderByHeartCount(boardId, pageRequestDto.searchKeyword, pageable)
+
             }
             else -> {
-                postRepository.findAllByBoardIdWithHeartCountOrderByNewest(boardId, pageable)
+                if (pageRequestDto.searchKeyword.isEmpty())
+                    postRepository.findAllByBoardIdWithHeartCountOrderByNewest(boardId, pageable)
+                else
+                    postRepository.findAllByBoardIdWithHeartCountOrderByNewest(boardId, pageRequestDto.searchKeyword, pageable)
             }
         }
 
@@ -97,30 +107,27 @@ class PostService(
             posts.pageable.pageNumber + 1,
             posts.pageable.pageSize,
             posts.totalElements,
-            posts.totalPages
+            posts.totalPages,
+            pageRequestDto.searchKeyword
         )
     }
 
     fun updatePost(id: Long, postRequestDto: PostRequestDto) : PostResponseDto? {
-        val foundPost = postRepository.findByIdOrNull(id)
+        val foundPost = postRepository.findByIdOrNull(id) ?: throw NotFoundPostException()
 
-        if (foundPost != null) {
-            foundPost.title = postRequestDto.title
-            foundPost.content = postRequestDto.content
+        foundPost.title = postRequestDto.title
+        foundPost.content = postRequestDto.content
 
-            val foundTags = postTagMapService.getTagsByPost(foundPost.id!!)
-            val newTags = tagService.convertToNameListFromTagString(postRequestDto.tags, foundPost.id)
+        val foundTags = postTagMapService.getTagsByPost(foundPost.id!!)
+        val newTags = tagService.convertToNameListFromTagString(postRequestDto.tags, foundPost.id)
 
-            // 게시글에 등록되어있던 tag 일괄 삭제
-            postTagMapService.deletePostTagMaps(foundPost.id, foundTags!!)
-            createTags(newTags, foundPost)
+        // 게시글에 등록되어있던 tag 일괄 삭제
+        postTagMapService.deletePostTagMaps(foundPost.id, foundTags!!)
+        createTags(newTags, foundPost)
 
-            postRepository.save(foundPost)
+        postRepository.save(foundPost)
 
-            return foundPost.toResponseDto(tags = newTags)
-        }
-
-        return null
+        return foundPost.toResponseDto(tags = newTags)
     }
 
     fun deletePost(postId: Long) {
