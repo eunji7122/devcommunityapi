@@ -39,6 +39,6 @@ class Comment(
     val deletedAt: LocalDateTime? = null
 
     fun toResponseDto(heartCount: Int = 0): CommentResponseDto
-    = CommentResponseDto(id!!, contents, member.toSummaryResponseDto(), heartCount, deletedAt)
+    = CommentResponseDto(id!!, contents, member.toSummaryResponseDto(), heartCount, updatedAt)
 
 }

@@ -5,6 +5,7 @@ import com.study.devcommunityapi.domain.post.dto.PostRequestDto
 import com.study.devcommunityapi.domain.post.dto.PostResponseDto
 import com.study.devcommunityapi.domain.post.service.PostService
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/posts")
@@ -18,14 +19,14 @@ class PostController(
     }
 
     @PostMapping("/")
-    fun createPost(@RequestBody postRequestDto: PostRequestDto): BaseResponseDto<PostResponseDto> {
-        val createdPost = postService.createPost(postRequestDto)
+    fun createPost(@RequestPart postRequestDto: PostRequestDto, @RequestPart files: List<MultipartFile>?): BaseResponseDto<PostResponseDto> {
+        val createdPost = postService.createPost(postRequestDto, files)
         return BaseResponseDto(data = createdPost)
     }
 
     @PutMapping("/{id}")
-    fun updatePost(@PathVariable id: Long, @RequestBody postRequestDto: PostRequestDto): BaseResponseDto<PostResponseDto> {
-        val updatedPost = postService.updatePost(id, postRequestDto)
+    fun updatePost(@PathVariable id: Long, @RequestPart postRequestDto: PostRequestDto, @RequestPart files: List<MultipartFile>?): BaseResponseDto<PostResponseDto> {
+        val updatedPost = postService.updatePost(id, postRequestDto, files)
         return BaseResponseDto(data = updatedPost)
     }
 

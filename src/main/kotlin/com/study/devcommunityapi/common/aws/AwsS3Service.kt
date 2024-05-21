@@ -19,54 +19,38 @@ class AwsS3Service (
     private lateinit var bucket: String
 
     @Throws(IOException::class)
-    fun uploadFiles(files: List<MultipartFile>): List<String> {
+    fun uploadFiles(files: List<MultipartFile>?): List<String> {
         val imageUrls = ArrayList<String>()
 
-        for (file in files) {
-//            if (fileUtil.isImageFile(originalFileName as String))
-//                throw IllegalArgumentException("png, jpeg, jpg에 해당하는 파일만 업로드할 수 있습니다.");
-            val originalFileName: String = UUID.randomUUID().toString() + "-" + file.originalFilename
+        if (files != null) {
+            for (file in files) {
+                val originalFileName: String = UUID.randomUUID().toString() + "-" + file.originalFilename
 
-            val objectMetadata = ObjectMetadata()
-            objectMetadata.contentLength = file.size
-            objectMetadata.contentType = file.contentType
+                val objectMetadata = ObjectMetadata()
+                objectMetadata.contentLength = file.size
+                objectMetadata.contentType = file.contentType
 
-            try {
-                amazonS3Client.putObject(bucket,originalFileName, file.inputStream, objectMetadata);
-                val uploadFileUrl = amazonS3Client.getUrl(bucket, originalFileName).toString();
-                imageUrls.add(uploadFileUrl)
-            } catch (e: IOException) {
-                e.printStackTrace();
+                try {
+                    amazonS3Client.putObject(bucket,originalFileName, file.inputStream, objectMetadata)
+                    val uploadFileUrl = amazonS3Client.getUrl(bucket, originalFileName).toString()
+                    imageUrls.add(uploadFileUrl)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
             }
         }
+
         return imageUrls
     }
 
-    //URL을 DB에 저장 후 DTO로 반환하기
-//    @Transactional
-//    fun saveFileUrls(userId:Int, imageUrls: List<String>, files: List<MultipartFile>): ArrayList<UploadLogDTO> {
-//        val dtoList = ArrayList<UploadLogDTO>()
-//
-//        for ((index, file) in files.withIndex()) {
-//
-//            if(uploadUtils.isNotImageFile(file.originalFilename as String))
-//                throw IllegalArgumentException("png, jpeg, jpg에 해당하는 파일만 업로드할 수 있습니다.");
-//
-//            val storeUrlDto = UploadLogDTO(
-//                user_id = userId,
-//                file_size = file.size.toInt(),
-//                upload_date = LocalDateTime.now(),
-//                url = imageUrls[index]
-//            )
-//            dtoList.add(storeUrlDto)
-//            /* TODO Mapper 이용해 db 저장 하기 */
-//        }
-//
-//        return dtoList
-//    }
-
-    fun deleteFile(s3FileName: String?) {
-        val deleteObjectRequest = DeleteObjectRequest(bucket, s3FileName)
-        amazonS3Client.deleteObject(deleteObjectRequest)
+    fun deleteFile(files: List<String>?) {
+        if (files != null) {
+            for (file in files) {
+                val splitStr = ".com/"
+                val fileName: String = file.substring(file.lastIndexOf(splitStr) + splitStr.length)
+                val deleteObjectRequest = DeleteObjectRequest(bucket, fileName)
+                amazonS3Client.deleteObject(deleteObjectRequest)
+            }
+        }
     }
 }

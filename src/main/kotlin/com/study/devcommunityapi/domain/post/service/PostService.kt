@@ -1,5 +1,6 @@
 package com.study.devcommunityapi.domain.post.service
 
+import com.study.devcommunityapi.common.aws.AwsS3Service
 import com.study.devcommunityapi.common.exception.NotFoundAuthenticMemberException
 import com.study.devcommunityapi.common.exception.NotFoundPostException
 import com.study.devcommunityapi.common.util.dto.CustomUser
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional
@@ -29,18 +31,21 @@ class PostService(
     private val postTagMapService: PostTagMapService,
     private val boardService: BoardService,
     private val memberService: MemberService,
+    private val awsS3Service: AwsS3Service,
 ) {
 
-    fun createPost(postRequestDto: PostRequestDto) : PostResponseDto? {
+    fun createPost(postRequestDto: PostRequestDto, files: List<MultipartFile>?) : PostResponseDto? {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
             ?: throw NotFoundAuthenticMemberException()
         val foundMember = memberService.findMemberByEmail(username)
         val foundBoard = boardService.getBoardEntity(postRequestDto.boardId)
 
-        val createdPost = postRepository.save(postRequestDto.toEntity(foundBoard, foundMember))
+        val uploadedFiles = awsS3Service.uploadFiles(files)
+
+        val createdPost = postRepository.save(postRequestDto.toEntity(foundBoard, foundMember, convertStringToPostImage(uploadedFiles)))
 
         if (postRequestDto.tags != "") {
-            val tags = tagService.convertToNameListFromTagString(postRequestDto.tags, createdPost.id!!)
+            val tags = tagService.convertToNameListFromTagString(postRequestDto.tags!!, createdPost.id!!)
             createTags(tags, createdPost)
             return createdPost.toResponseDto(tags = tags)
         }
@@ -99,7 +104,7 @@ class PostService(
 
         val dtoList: List<PostResponseDto> = posts.get().map { item ->
             val tags = tagList.filter { subItem -> subItem.post.id == item.post.id }.map { it.tag.name }
-            item.toResponseDto(tags)
+            item.toResponseDto(tags, item.post.images)
         }.toList()
 
         return PageResponseDto(
@@ -112,18 +117,27 @@ class PostService(
         )
     }
 
-    fun updatePost(id: Long, postRequestDto: PostRequestDto) : PostResponseDto? {
+    fun updatePost(id: Long, postRequestDto: PostRequestDto, files: List<MultipartFile>?) : PostResponseDto? {
         val foundPost = postRepository.findByIdOrNull(id) ?: throw NotFoundPostException()
 
         foundPost.title = postRequestDto.title
         foundPost.content = postRequestDto.content
 
         val foundTags = postTagMapService.getTagsByPost(foundPost.id!!)
-        val newTags = tagService.convertToNameListFromTagString(postRequestDto.tags, foundPost.id)
+        val newTags = tagService.convertToNameListFromTagString(postRequestDto.tags!!, foundPost.id)
 
         // 게시글에 등록되어있던 tag 일괄 삭제
         postTagMapService.deletePostTagMaps(foundPost.id, foundTags!!)
         createTags(newTags, foundPost)
+
+        // 이미지 수정
+        awsS3Service.deleteFile(foundPost.images.map { it.imageUrl })
+        if (files != null) {
+            val uploadedFiles = awsS3Service.uploadFiles(files)
+            foundPost.images = convertStringToPostImage(uploadedFiles)
+        } else {
+            foundPost.images = arrayListOf()
+        }
 
         postRepository.save(foundPost)
 
@@ -135,6 +149,7 @@ class PostService(
         if (foundPost != null) {
             val foundTags = postTagMapService.getTagsByPost(postId)
             postTagMapService.deletePostTagMaps(postId, foundTags!!)
+            awsS3Service.deleteFile(foundPost.images.map { it.imageUrl })
 
             postRepository.delete(foundPost)
         }
@@ -179,6 +194,16 @@ class PostService(
                 }
             }
         }
+    }
+
+    private fun convertStringToPostImage(files: List<String>): List<PostImage> {
+        val postImages = arrayListOf<PostImage>()
+
+        for (file in files) {
+            postImages.add(PostImage(file))
+        }
+
+        return postImages
     }
 
 }

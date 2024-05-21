@@ -7,7 +7,7 @@ interface PostWithHeartCount {
     var heartCount: Int
 }
 
-fun PostWithHeartCount.toResponseDto(tags: List<String> = arrayListOf()): PostResponseDto = PostResponseDto(
+fun PostWithHeartCount.toResponseDto(tags: List<String> = arrayListOf(), images: List<PostImage>): PostResponseDto = PostResponseDto(
     post.id!!,
     post.title,
     post.content,
@@ -16,6 +16,7 @@ fun PostWithHeartCount.toResponseDto(tags: List<String> = arrayListOf()): PostRe
     post.viewCount,
     heartCount,
     tags,
+    images,
     post.isSelected,
     post.rewardPoint,
     post.createdAt,

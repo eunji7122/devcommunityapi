@@ -39,7 +39,11 @@ class Post (
 
     @Column
     @ColumnDefault("0")
-    var rewardPoint: Int
+    var rewardPoint: Int,
+
+    @ElementCollection
+    @CollectionTable(name = "POST_IMAGE", joinColumns = [JoinColumn(name = "post_id")])
+    var images: List<PostImage> = arrayListOf()
 
 ): BaseEntity() {
 
@@ -47,6 +51,5 @@ class Post (
     val deletedAt: LocalDateTime? = null
 
     fun toResponseDto(heartCount: Int = 0, tags: List<String> = arrayListOf()): PostResponseDto
-        = PostResponseDto(id!!, title, content, board.toResponseDto(), member.toSummaryResponseDto(), viewCount, heartCount, tags, isSelected, rewardPoint, createdAt, updatedAt)
-
+        = PostResponseDto(id!!, title, content, board.toResponseDto(), member.toSummaryResponseDto(), viewCount, heartCount, tags, images, isSelected, rewardPoint, createdAt, updatedAt)
 }
