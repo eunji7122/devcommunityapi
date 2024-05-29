@@ -47,4 +47,14 @@ class PostController(
         return BaseResponseDto()
     }
 
+    @PostMapping("/file")
+    fun uploadFile(@RequestPart files: List<MultipartFile>?): BaseResponseDto<List<String>> {
+        val uploadedFiles = postService.uploadFile(files)
+        return BaseResponseDto(data = uploadedFiles)
+    }
+
+    @DeleteMapping("/file")
+    fun deleteFile(@RequestPart files: List<MultipartFile>?) {
+        postService.deleteFile(files)
+    }
 }

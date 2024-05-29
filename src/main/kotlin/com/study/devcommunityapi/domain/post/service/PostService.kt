@@ -177,6 +177,19 @@ class PostService(
         return postRepository.save(post)
     }
 
+    fun uploadFile(files: List<MultipartFile>?) : List<String>? {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundAuthenticMemberException()
+
+        return awsS3Service.uploadFiles(files)
+    }
+
+    fun deleteFile(files: List<MultipartFile>?) {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundAuthenticMemberException()
+        awsS3Service.deleteFile(files?.map { it.name })
+    }
+
     private fun createTags(tags: List<String>, post: Post) {
         // tag 리스트를 순회하면서 저장 (post 당 tag는 여러개임)
         for (tag in tags) {
