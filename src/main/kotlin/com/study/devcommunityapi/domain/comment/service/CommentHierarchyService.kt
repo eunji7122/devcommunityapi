@@ -1,8 +1,10 @@
 package com.study.devcommunityapi.domain.comment.service
 
+import com.study.devcommunityapi.common.exception.NotFoundPostException
 import com.study.devcommunityapi.domain.comment.entity.CommentHierarchy
 import com.study.devcommunityapi.domain.comment.repository.CommentHierarchyRepository
 import jakarta.transaction.Transactional
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,5 +19,9 @@ class CommentHierarchyService(
 
     fun saveAncestorCommentsHierarchy(ancestorCommentId: Long, descendantCommentId: Long) {
         commentHierarchyRepository.insertCommentHierarchy(ancestorCommentId, descendantCommentId)
+    }
+
+    fun getCommentHierarchy(commentId: Long): CommentHierarchy {
+        return commentHierarchyRepository.findByIdOrNull(commentId) ?: throw NotFoundPostException()
     }
 }

@@ -57,7 +57,8 @@ class CommentService(
 
         return commentRepository.findAllByPostId(postId).stream().map {
             val heartCount = commentHeartService.getHeartCountByComment(it.id!!)
-            it.toResponseDto(heartCount)
+            val commentHierarchy = commentHierarchyService.getCommentHierarchy(it.id)
+            it.toResponseDto(commentHierarchy.ancestorCommentId, commentHierarchy.descendantCommentId, commentHierarchy.depth, heartCount)
         }.toList()
     }
 
@@ -70,7 +71,7 @@ class CommentService(
 
         val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw NotFoundCommentException()
         val heartCount = commentHeartService.getHeartCountByComment(foundComment.id!!)
-        return foundComment.toResponseDto(heartCount)
+        return foundComment.toResponseDto(heartCount = heartCount)
     }
 
     fun getCommentWithDescendant(commentId: Long): List<CommentResponseDto>? {

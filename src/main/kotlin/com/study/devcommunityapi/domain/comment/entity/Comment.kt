@@ -38,7 +38,7 @@ class Comment(
     @Column(nullable = true)
     val deletedAt: LocalDateTime? = null
 
-    fun toResponseDto(heartCount: Int = 0): CommentResponseDto
-    = CommentResponseDto(id!!, contents, member.toSummaryResponseDto(), heartCount, updatedAt)
+    fun toResponseDto(ancestorCommentId: Long? = null, descendantCommentId: Long? = null, depth: Int? = null, heartCount: Int = 0): CommentResponseDto
+    = CommentResponseDto(id!!, contents, ancestorCommentId, descendantCommentId, depth, member.toSummaryResponseDto(), heartCount, updatedAt)
 
 }
