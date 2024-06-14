@@ -35,6 +35,12 @@ class PostController(
         postService.deletePost(id)
     }
 
+    @GetMapping("/{postId}/heart")
+    fun getPostHeart(@PathVariable postId: Long): BaseResponseDto<Boolean> {
+        val result = postService.getPostHeartByMember(postId)
+        return BaseResponseDto(result)
+    }
+
     @PostMapping("/{postId}/heart")
     fun savePostHeart(@PathVariable postId: Long): BaseResponseDto<Any> {
         postService.savePostHeart(postId)

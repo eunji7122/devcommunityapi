@@ -47,6 +47,12 @@ class CommentController(
         return BaseResponseDto()
     }
 
+    @GetMapping("/comments/{commentId}/heart")
+    fun getCommentHeart(@PathVariable commentId: Long): BaseResponseDto<Boolean> {
+        val result = commentService.getCommentHeartByMember(commentId)
+        return BaseResponseDto(result)
+    }
+
     @DeleteMapping("/comments/{commentId}/heart")
     fun deleteCommentHeart(@PathVariable commentId: Long): BaseResponseDto<Any> {
         commentService.deleteCommentHeart(commentId)

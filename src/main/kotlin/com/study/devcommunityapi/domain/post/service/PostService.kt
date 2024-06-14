@@ -155,6 +155,16 @@ class PostService(
         }
     }
 
+    fun getPostHeartByMember(postId: Long): Boolean {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+        return if (username != null) {
+            val foundMember = memberService.findMemberByEmail(username)
+            postHeartService.getPostHeartByMember(postId, foundMember.id!!)
+        } else {
+            false
+        }
+    }
+
     fun savePostHeart(postId: Long) {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
             ?: throw NotFoundAuthenticMemberException()

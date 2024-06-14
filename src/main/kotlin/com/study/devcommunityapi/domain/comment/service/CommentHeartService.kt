@@ -20,6 +20,10 @@ class CommentHeartService(
         commentHeartRepository.save(CommentHeart(comment, member))
     }
 
+    fun getCommentHeartByMember(commentId: Long, memberId: Long): Boolean {
+        return commentHeartRepository.findByCommentIdAndMemberId(commentId, memberId) != null
+    }
+
     fun getHeartCountByComment(commentId: Long): Int {
         return commentHeartRepository.countByCommentId(commentId)
     }

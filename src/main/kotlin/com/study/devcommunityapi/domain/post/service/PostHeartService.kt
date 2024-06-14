@@ -13,6 +13,10 @@ class PostHeartService(
     private val postHeartRepository: PostHeartRepository,
 ) {
 
+    fun getPostHeartByMember(postId: Long, memberId: Long): Boolean {
+        return postHeartRepository.findByPostIdAndMemberId(postId, memberId) != null
+    }
+
     fun savePostHeart(post: Post, member: Member) {
         if (postHeartRepository.findByPostIdAndMemberId(post.id!!, member.id!!) != null) {
             throw RuntimeException("이미 좋아요를 등록한 게시글입니다.")

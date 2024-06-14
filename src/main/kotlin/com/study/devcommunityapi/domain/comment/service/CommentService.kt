@@ -98,6 +98,16 @@ class CommentService(
         commentHeartService.saveCommentHeart(foundComment, foundMember)
     }
 
+    fun getCommentHeartByMember(commentId: Long): Boolean {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+        return if (username != null) {
+            val foundMember = memberService.findMemberByEmail(username)
+            commentHeartService.getCommentHeartByMember(commentId, foundMember.id!!)
+        } else {
+            false
+        }
+    }
+
     fun deleteCommentHeart(commentId: Long) {
         val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
             ?: throw NotFoundMemberException()
