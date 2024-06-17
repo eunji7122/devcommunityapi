@@ -24,4 +24,8 @@ class CommentHierarchyService(
     fun getCommentHierarchy(commentId: Long): CommentHierarchy {
         return commentHierarchyRepository.findByIdOrNull(commentId) ?: throw NotFoundPostException()
     }
+
+    fun getCommentHierarchies(commentId: Long): List<CommentHierarchy> {
+        return commentHierarchyRepository.findAllByDescendantCommentId(commentId)
+    }
 }

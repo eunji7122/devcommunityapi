@@ -24,4 +24,6 @@ interface CommentHierarchyRepository: JpaRepository<CommentHierarchy, Long> {
     //    union all
     //    select 78, 78, 0
 
+    fun findAllByDescendantCommentId(descendantCommentId: Long): List<CommentHierarchy>
+
 }

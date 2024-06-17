@@ -57,8 +57,8 @@ class CommentService(
 
         return commentRepository.findAllByPostId(postId).stream().map {
             val heartCount = commentHeartService.getHeartCountByComment(it.id!!)
-            val commentHierarchy = commentHierarchyService.getCommentHierarchy(it.id)
-            it.toResponseDto(commentHierarchy.ancestorCommentId, commentHierarchy.descendantCommentId, commentHierarchy.depth, heartCount)
+            val commentHierarchies = commentHierarchyService.getCommentHierarchies(it.id)
+            it.toResponseDto(commentHierarchies, heartCount)
         }.toList()
     }
 
