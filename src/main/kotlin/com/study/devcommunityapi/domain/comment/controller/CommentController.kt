@@ -47,10 +47,10 @@ class CommentController(
         return BaseResponseDto()
     }
 
-    @GetMapping("/comments/{commentId}/heart")
-    fun getCommentHeart(@PathVariable commentId: Long): BaseResponseDto<Boolean> {
-        val result = commentService.getCommentHeartByMember(commentId)
-        return BaseResponseDto(result)
+    @GetMapping("/posts/{postId}/comments/heart")
+    fun getCommentsByBoardIdWithHeart(@PathVariable postId: Long): BaseResponseDto<List<Any>> {
+        val comments = commentService.getCommentsByPostIdWithHeart(postId)
+        return BaseResponseDto(comments)
     }
 
     @DeleteMapping("/comments/{commentId}/heart")

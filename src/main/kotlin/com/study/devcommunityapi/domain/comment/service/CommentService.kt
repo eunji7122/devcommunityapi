@@ -3,8 +3,10 @@ package com.study.devcommunityapi.domain.comment.service
 import com.study.devcommunityapi.common.exception.NotFoundCommentException
 import com.study.devcommunityapi.common.exception.NotFoundMemberException
 import com.study.devcommunityapi.common.util.dto.CustomUser
+import com.study.devcommunityapi.domain.comment.dto.CommentHeartResponseDto
 import com.study.devcommunityapi.domain.comment.dto.CommentRequestDto
 import com.study.devcommunityapi.domain.comment.dto.CommentResponseDto
+import com.study.devcommunityapi.domain.comment.entity.Comment
 import com.study.devcommunityapi.domain.comment.repository.CommentRepository
 import com.study.devcommunityapi.domain.member.service.MemberService
 import com.study.devcommunityapi.domain.post.service.PostService
@@ -46,19 +48,21 @@ class CommentService(
     }
 
     fun getCommentsByPostId(postId: Long): List<CommentResponseDto> {
-//        val foundComments = commentRepository.findAllByPostId(postId)
-//
-//        return foundComments.stream().map {
-//            val foundDescendantComments = commentRepository.findDescendantComments(it.id!!)
-//            it.toResponseDto(foundDescendantComments.stream().map { subIt ->
-//                subIt.toResponseDto()
-//            }.toList())
-//        }.toList()
-
         return commentRepository.findAllByPostId(postId).stream().map {
             val heartCount = commentHeartService.getHeartCountByComment(it.id!!)
             val commentHierarchies = commentHierarchyService.getCommentHierarchies(it.id)
             it.toResponseDto(commentHierarchies, heartCount)
+        }.toList()
+    }
+
+    fun getCommentsByPostIdWithHeart(postId: Long): List<CommentHeartResponseDto> {
+        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
+            ?: throw NotFoundMemberException()
+        val foundMember = memberService.findMemberByEmail(username)
+
+        return commentRepository.findCommentsByPostIdWithHeart(postId, foundMember.id!!).stream().map {
+            val comment: Comment = it[0] as Comment
+            CommentHeartResponseDto(comment.id!!, it[1] as Boolean)
         }.toList()
     }
 
@@ -96,16 +100,6 @@ class CommentService(
         val foundComment = commentRepository.findByIdOrNull(commentId) ?: throw NotFoundCommentException()
 
         commentHeartService.saveCommentHeart(foundComment, foundMember)
-    }
-
-    fun getCommentHeartByMember(commentId: Long): Boolean {
-        val username = (SecurityContextHolder.getContext().authentication.principal as CustomUser).username
-        return if (username != null) {
-            val foundMember = memberService.findMemberByEmail(username)
-            commentHeartService.getCommentHeartByMember(commentId, foundMember.id!!)
-        } else {
-            false
-        }
     }
 
     fun deleteCommentHeart(commentId: Long) {

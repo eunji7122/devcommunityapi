@@ -18,4 +18,12 @@ interface CommentRepository: JpaRepository<Comment, Long> {
     // 자식 댓글 모두 조회
     @Query("SELECT c, p FROM Comment c JOIN CommentHierarchy p ON c.id = p.descendantCommentId WHERE p.ancestorCommentId = :ancestorCommentId AND p.ancestorCommentId != p.descendantCommentId")
     fun findDescendantComments(@Param("ancestorCommentId") ancestorCommentId: Long) : List<Any>
+
+    // 특정 게시글의 모든 댓글 조회 (좋아요 포함)
+    @Query("SELECT c, NVL2(ch.comment.id, true, false) as heart " +
+            "FROM Comment c " +
+            "LEFT JOIN CommentHeart ch ON c.id = ch.comment.id AND ch.member.id = :memberId " +
+            "WHERE c.post.id = :postId " +
+            "ORDER BY c.createdAt")
+    fun findCommentsByPostIdWithHeart(@Param("postId") postId: Long, @Param("memberId") memberId: Long): List<List<Any>>
 }
