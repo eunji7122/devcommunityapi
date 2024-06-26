@@ -9,10 +9,18 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CommentRepository: JpaRepository<Comment, Long> {
 
-    @Query(value = "SELECT c FROM Comment c JOIN CommentHierarchy p ON c.id = p.ancestorCommentId WHERE c.post.id = :postId AND p.ancestorCommentId = p.descendantCommentId Order by c.createdAt")
+    @Query("SELECT c " +
+            "FROM Comment c " +
+            "JOIN CommentHierarchy p ON c.id = p.ancestorCommentId " +
+            "WHERE c.post.id = :postId AND p.ancestorCommentId = p.descendantCommentId and c.deletedAt is null " +
+            "Order by c.createdAt")
     fun findAllByPostId(postId: Long) : List<Comment>
 
-    @Query("SELECT c FROM Comment c JOIN CommentHierarchy p ON c.id = p.descendantCommentId WHERE p.ancestorCommentId = :commentId Order by c.createdAt")
+    @Query("SELECT c " +
+            "FROM Comment c " +
+            "JOIN CommentHierarchy p ON c.id = p.descendantCommentId " +
+            "WHERE p.ancestorCommentId = :commentId and c.deletedAt is null " +
+            "Order by c.createdAt")
     fun findByCommentIdWithDescendant(@Param("commentId") commentId: Long): List<Comment>
 
     // 자식 댓글 모두 조회
@@ -23,7 +31,7 @@ interface CommentRepository: JpaRepository<Comment, Long> {
     @Query("SELECT c, NVL2(ch.comment.id, true, false) as heart " +
             "FROM Comment c " +
             "LEFT JOIN CommentHeart ch ON c.id = ch.comment.id AND ch.member.id = :memberId " +
-            "WHERE c.post.id = :postId " +
+            "WHERE c.post.id = :postId and c.deletedAt is null " +
             "ORDER BY c.createdAt")
     fun findCommentsByPostIdWithHeart(@Param("postId") postId: Long, @Param("memberId") memberId: Long): List<List<Any>>
 }
