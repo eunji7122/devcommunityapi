@@ -15,13 +15,13 @@ import org.springframework.web.util.UriComponentsBuilder
 class GoogleOAuthImpl : SocialOAuth {
 
     @Value("\${spring.security.oauth2.client.registration.google.client-id}")
-    var googleClientId: String = ""
+    private lateinit var googleClientId: String
 
     @Value("\${spring.security.oauth2.client.registration.google.client-secret}")
-    var googleClientSecret: String = ""
+    private lateinit var googleClientSecret: String
 
     @Value("\${spring.security.oauth2.client.registration.google.redirect-uri}")
-    var googleRedirectUrl: String = ""
+    private lateinit var googleRedirectUrl: String
 
 
     override fun getOAuthRedirectURL(): String {
@@ -51,9 +51,9 @@ class GoogleOAuthImpl : SocialOAuth {
         return objectMapper.readValue(response.body, SocialOAuthTokenDto::class.java)
     }
 
-    override fun requestUserInfo(oAuthToken: SocialOAuthTokenDto): ResponseEntity<String> {
+    override fun requestUserInfo(oauthToken: SocialOAuthTokenDto): ResponseEntity<String> {
         val headers = HttpHeaders()
-        headers.add("Authorization", "Bearer " + oAuthToken.access_token)
+        headers.add("Authorization", "Bearer " + oauthToken.access_token)
 
         val uri = UriComponentsBuilder
             .fromUriString("https://www.googleapis.com/oauth2/v1/userinfo")

@@ -30,7 +30,7 @@ class JwtTokenProvider {
 
     companion object {
         // 1000 = 1초
-        const val ACCESS_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 10   // 10분
+        const val ACCESS_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 1   // 10분
         const val REFRESH_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 30  // 30분
         const val REISSUE_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 20  // 20분
 
